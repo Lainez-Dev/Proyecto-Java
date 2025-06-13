@@ -1,0 +1,228 @@
+/* Estilos adicionales para la página de puertas */
+
+/* Tablas de puertas */
+.gates-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.gates-table th, 
+.gates-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.gates-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #555;
+}
+
+.gates-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Colores de fondo para iconos de estado */
+.available-bg {
+    background-color: var(--success);
+    color: white;
+}
+
+.occupied-bg {
+    background-color: var(--danger);
+    color: white;
+}
+
+.reserved-bg {
+    background-color: var(--warning);
+    color: white;
+}
+
+.maintenance-bg {
+    background-color: #95a5a6;
+    color: white;
+}
+
+/* Estado de mantenimiento adicional */
+.maintenance {
+    background-color: #95a5a6;
+    color: white;
+}
+
+/* Vista de cuadrícula de puertas */
+.gate-view-toggle {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.btn-view {
+    padding: 0.5rem 1rem;
+    background-color: transparent;
+    border: 1px solid #ddd;
+    color: #555;
+    margin-left: 0.5rem;
+}
+
+.btn-view.active {
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+    color: white;
+}
+
+/* Resumen de estados */
+.gate-status-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.status-count {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.status-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-right: 1rem;
+}
+
+.status-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.status-label {
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.status-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--dark);
+}
+
+/* Formulario de cambio de estado */
+.change-status-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 500;
+}
+
+.form-control {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--secondary);
+    outline: none;
+}
+
+/* Pestañas de terminal */
+.terminal-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+}
+
+.tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-weight: 500;
+    color: #555;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    color: var(--secondary);
+    border-bottom-color: var(--secondary);
+}
+
+/* Mapa de terminal */
+.terminal-map {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    min-height: 250px;
+}
+
+.terminal-layout {
+    display: flex;
+    justify-content: center;
+}
+
+.gate-map-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    width: 100%;
+}
+
+.gate-block {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.gate-block:hover {
+    transform: scale(1.05);
+}
+
+/* Botón de cambio de estado */
+.status-change-btn {
+    background-color: #f8f9fa;
+}
+
+.status-change-btn:hover {
+    background-color: var(--secondary);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .gate-status-summary {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .gate-map-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

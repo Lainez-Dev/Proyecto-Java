@@ -1,0 +1,76 @@
+        /* Estilos para el diálogo modal si no los tienes ya */
+        dialog#dialogoCrear {
+            position: fixed;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            min-width: 350px; /* Ajusta según necesidad */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        dialog#dialogoCrear::backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        dialog#dialogoCrear h3 {
+            margin-top: 0;
+        }
+        dialog#dialogoCrear form label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+        dialog#dialogoCrear form input[type="text"],
+        dialog#dialogoCrear form input[type="date"],
+        dialog#dialogoCrear form input[type="email"] {
+            width: calc(100% - 16px); /* Para el padding */
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        dialog#dialogoCrear form .dialog-actions {
+            margin-top: 20px;
+            text-align: right;
+        }
+        dialog#dialogoCrear form .dialog-actions button {
+            margin-left: 10px;
+        }
+        .passenger-actions-panel { /* Contenedor para los nuevos botones */
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .passenger-actions-panel .action-group {
+            margin-bottom: 15px;
+        }
+        .passenger-actions-panel label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .passenger-actions-panel input[type="text"] {
+            width: 250px; /* Ajusta según necesidad */
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .passenger-actions-panel button {
+            padding: 8px 12px;
+        }
+        #passenger-search-results { /* Para mostrar resultados de búsqueda */
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px dashed #ccc;
+            min-height: 50px; /* Para que sea visible incluso vacío */
+            background-color: #fff;
+        }
+        .passenger-info-card {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .passenger-info-card p { margin: 3px 0; }

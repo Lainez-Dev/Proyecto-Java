@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroSystem - Gestión de Vuelos</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <script href="../js/script.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-plane"></i>
+                <span>AeroSystem</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="inicio.html">Inicio</a></li>
+                <li><a href="vuelos.html" class="active">Vuelos</a></li>
+                <li><a href="puertas.html">Puertas</a></li>
+                <li><a href="cambios.html">Updates</a></li>
+            </ul>
+            <div class="user-actions">
+                <a href="#" class="btn btn-outline">
+                    <i class="fas fa-search"></i>
+                </a>
+                <a href="#" class="btn">
+                    <i class="fas fa-user"></i> Admin
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="welcome-banner">
+            <h1>Gestión de Vuelos</h1>
+            <p>Consulta y administra todos los vuelos programados en el sistema aeroportuario.</p>
+            <a href="#" class="btn">Crear Nuevo Vuelo <i class="fas fa-plus"></i></a>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h2>Buscar Vuelos</h2>
+            </div>
+            <div class="search-container">
+                <form class="search-form">
+                    <div class="search-row">
+                        <div class="search-group">
+                            <label for="flight-number">Número de Vuelo</label>
+                            <input type="text" id="flight-number" placeholder="Ej: IB2742">
+                        </div>
+                        <div class="search-group">
+                            <label for="origin">Origen</label>
+                            <select id="origin">
+                                <option value="">Todos los orígenes</option>
+                                <option value="MAD">Madrid (MAD)</option>
+                                <option value="BCN">Barcelona (BCN)</option>
+                                <option value="LHR">Londres (LHR)</option>
+                                <option value="CDG">París (CDG)</option>
+                                <option value="FRA">Frankfurt (FRA)</option>
+                            </select>
+                        </div>
+                        <div class="search-group">
+                            <label for="destination">Destino</label>
+                            <select id="destination">
+                                <option value="">Todos los destinos</option>
+                                <option value="MAD">Madrid (MAD)</option>
+                                <option value="BCN">Barcelona (BCN)</option>
+                                <option value="LHR">Londres (LHR)</option>
+                                <option value="CDG">París (CDG)</option>
+                                <option value="FRA">Frankfurt (FRA)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="search-row">
+                        <div class="search-group">
+                            <label for="date">Fecha</label>
+                            <input type="date" id="date">
+                        </div>
+                        <div class="search-group">
+                            <label for="status">Estado</label>
+                            <select id="status">
+                                <option value="">Todos los estados</option>
+                                <option value="on-time">A tiempo</option>
+                                <option value="delayed">Retrasado</option>
+                                <option value="boarding">Embarcando</option>
+                                <option value="departed">Salido</option>
+                                <option value="arrived">Llegado</option>
+                                <option value="cancelled">Cancelado</option>
+                            </select>
+                        </div>
+                        <div class="search-group">
+                            <label for="airline">Aerolínea</label>
+                            <select id="airline">
+                                <option value="">Todas las aerolíneas</option>
+                                <option value="IB">Iberia (IB)</option>
+                                <option value="BA">British Airways (BA)</option>
+                                <option value="AF">Air France (AF)</option>
+                                <option value="LH">Lufthansa (LH)</option>
+                                <option value="VY">Vueling (VY)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="search-buttons">
+                        <button type="submit" class="btn">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button type="reset" class="btn btn-outline">
+                            <i class="fas fa-undo"></i> Reiniciar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h2>Todos los Vuelos</h2>
+                <div class="table-actions">
+                    <a href="#" class="btn btn-outline">
+                        <i class="fas fa-download"></i> Exportar
+                    </a>
+                    <a href="#" class="btn btn-outline">
+                        <i class="fas fa-filter"></i> Filtros
+                    </a>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="flights-table">
+                    <thead>
+                        <tr>
+                            <th>Vuelo</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Salida</th>
+                            <th>Llegada</th>
+                            <th>Puerta</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>IB2742</td>
+                            <td>Madrid (MAD)</td>
+                            <td>Barcelona (BCN)</td>
+                            <td>10:15 AM</td>
+                            <td>11:30 AM</td>
+                            <td>A12</td>
+                            <td><span class="flight-status status-on-time">A tiempo</span></td>
+                            <td class="actions-cell">
+                                <a href="#" class="icon-button"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="icon-button"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BA8532</td>
+                            <td>Madrid (MAD)</td>
+                            <td>Londres (LHR)</td>
+                            <td>11:00 AM</td>
+                            <td>12:35 PM</td>
+                            <td>B8</td>
+                            <td><span class="flight-status status-boarding">Embarcando</span></td>
+                            <td class="actions-cell">
+                                <a href="#" class="icon-button"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="icon-button"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>AF7721</td>
+                            <td>Barcelona (BCN)</td>
+                            <td>París (CDG)</td>
+                            <td>11:45 AM</td>
+                            <td>13:50 PM</td>
+                            <td>C3</td>
+                            <td><span class="flight-status status-delayed">Retrasado</span></td>
+                            <td class="actions-cell">
+                                <a href="#" class="icon-button"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="icon-button"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>LH1823</td>
+                            <td>Frankfurt (FRA)</td>
+                            <td>Madrid (MAD)</td>
+                            <td>12:30 PM</td>
+                            <td>14:45 PM</td>
+                            <td>A5</td>
+                            <td><span class="flight-status status-on-time">A tiempo</span></td>
+                            <td class="actions-cell">
+                                <a href="#" class="icon-button"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="icon-button"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>VY3421</td>
+                            <td>Madrid (MAD)</td>
+                            <td>Barcelona (BCN)</td>
+                            <td>13:15 PM</td>
+                            <td>14:30 PM</td>
+                            <td>D1</td>
+                            <td><span class="flight-status status-on-time">A tiempo</span></td>
+                            <td class="actions-cell">
+                                <a href="#" class="icon-button"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="icon-button"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>IB5431</td>
+                            <td>Barcelona (BCN)</td>
+                            <td>Madrid (MAD)</td>
+                            <td>14:00 PM</td>
+                            <td>15:15 PM</td>
+                            <td>B3</td>
+                            <td><span class="flight-status status-on-time">A tiempo</span></td>
+                            <td class="actions-cell">
+                                <a href="#" class="icon-button"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="icon-button"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>VY8976</td>
+                            <td>Madrid (MAD)</td>
+                            <td>Roma (FCO)</td>
+                            <td>15:30 PM</td>
+                            <td>17:45 PM</td>
+                            <td>C2</td>
+                            <td><span class="flight-status status-cancelled">Cancelado</span></td>
+                            <td class="actions-cell">
+                                <a href="#" class="icon-button"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="icon-button"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>LH2390</td>
+                            <td>Frankfurt (FRA)</td>
+                            <td>Barcelona (BCN)</td>
+                            <td>16:15 PM</td>
+                            <td>18:30 PM</td>
+                            <td>A7</td>
+                            <td><span class="flight-status status-on-time">A tiempo</span></td>
+                            <td class="actions-cell">
+                                <a href="#" class="icon-button"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="icon-button"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>AF1258</td>
+                            <td>París (CDG)</td>
+                            <td>Madrid (MAD)</td>
+                            <td>17:00 PM</td>
+                            <td>19:15 PM</td>
+                            <td>B4</td>
+                            <td><span class="flight-status status-boarding">Embarcando</span></td>
+                            <td class="actions-cell">
+                                <a href="#" class="icon-button"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="icon-button"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BA6371</td>
+                            <td>Londres (LHR)</td>
+                            <td>Barcelona (BCN)</td>
+                            <td>18:45 PM</td>
+                            <td>21:00 PM</td>
+                            <td>D3</td>
+                            <td><span class="flight-status status-delayed">Retrasado</span></td>
+                            <td class="actions-cell">
+                                <a href="#" class="icon-button"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="icon-button"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button class="btn btn-outline">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="page-number active">1</span>
+                <span class="page-number">2</span>
+                <span class="page-number">3</span>
+                <span class="page-number">4</span>
+                <span class="page-number">5</span>
+                <button class="btn btn-outline">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div>&copy; 2025 AeroSystem - Sistema de Gestión Aeroportuaria</div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>

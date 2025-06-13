@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasajeros - AeroSystem</title>
+    <link href="../css/styles-pasajeros.css" rel="stylesheet">
+
+        
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-plane"></i>
+                <span>AeroSystem</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html">Inicio</a></li>
+                <li><a href="vuelos.html">Vuelos</a></li>
+                <li><a href="aviones.html">Aviones</a></li>
+                <li><a href="aerolineas.html">Aerolíneas</a></li>
+                <li><a href="puertas.html">Puertas</a></li>
+                <li><a href="pasajeros.html" class="active">Pasajeros</a></li>
+                <li><a href="reservas.html">Reservas</a></li>
+            </ul>
+            <div class="user-actions">
+                <a href="#" class="btn btn-outline"><i class="fas fa-search"></i></a>
+                <a href="#" class="btn"><i class="fas fa-user"></i> Admin</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h1><i class="fas fa-users"></i>Gestión de Pasajeros</h1>
+            <p>Administra la información de los pasajeros del sistema aeroportuario</p>
+        </div>
+
+        <!-- Alert messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Controls section -->
+        <div class="controls-section">
+            <div class="controls-header">
+                <h2>Buscar y Filtrar Pasajeros</h2>
+                <button class="btn btn-success" onclick="llamarDialogoPasajero()">
+                    <i class="fas fa-plus"></i> Nuevo Pasajero
+                </button>
+                <dialog id="dialogoPasajero">
+                    <h3>Nombre</h3>
+                    <input type="text" id="nombreCreacion">
+                    <h3>Apellido</h3>
+                    <input type="text" id="apellidoCreacion">
+                    <h3>Fecha Nacimiento</h3>
+                    <input type="date" id="fechaNacimientoCreacion">
+                    <h3>DNI</h3>
+                    <input type="text" id="dni">
+                    <h3>Email</h3>
+                    <input type="text" id="emailCreacion">
+                    <br>
+                    <button onclick="crearPasajero()">Crear Autor</button>
+                    <br>
+                    <button onclick="cerrarDialogo()">Cerrar</button>
+                </dialog>
+            </div>
+            <div class="search-filters">
+                <div class="form-group">
+                    <label for="searchDni">Buscar por DNI</label>
+                    <input type="text" id="dni" class="form-control" placeholder="Ingrese DNI a buscar..." maxlength="20">
+                </div>
+                <button class="btn" onclick="buscarPasajeros()">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+
+        <!-- Table section -->
+        <div class="table-section">
+            <div class="table-header">
+                <h3>Lista de Pasajeros</h3>
+                <button class="btn btn-outline btn-sm" onclick="loadPassengers()">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+            </div>
+            <div id="tableContainer">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Cargando pasajeros...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div id="passengerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nuevo Pasajero</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="passengerForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombre">Nombre *</label>
+                        <input type="text" id="nombre" name="nombre" class="form-control" required maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="apellido">Apellido *</label>
+                        <input type="text" id="apellido" name="apellido" class="form-control" required maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="dni">DNI *</label>
+                        <input type="text" id="dni" name="dni" class="form-control" required maxlength="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaNacimiento">Fecha de Nacimiento *</label>
+                        <input type="date" id="fechaNacimiento" name="fechaNacimiento" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" class="form-control" required maxlength="100">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="../js/pasajeros.js"></script>
+</body>
+</html>

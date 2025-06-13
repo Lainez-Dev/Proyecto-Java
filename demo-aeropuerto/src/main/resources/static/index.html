@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroSystem - Sistema de Gestión Aeroportuaria</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-plane"></i>
+                <span>AeroSystem</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Inicio</a></li>
+                <li><a href="html/vuelos.html">Vuelos</a></li>
+                <li><a href="html/aviones.html">Aviones</a></li>
+                <li><a href="html/aerolineas.html">Aerolineas</a></li>
+                <li><a href="html/puertas.html">Puertas</a></li>
+                <li><a href="html/pasajeros.html">Pasajeros</a></li>
+                <li><a href="html/reservas.html">Reservas</a></li>
+            </ul>
+            <div class="user-actions">
+                <a href="#" class="btn btn-outline"><i class="fas fa-search"></i></a>
+                <a href="#" class="btn"><i class="fas fa-user"></i> Admin</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="welcome-banner">
+            <h1>Pasajeros</h1>
+            <p>Administra de manera eficiente todos los aspectos de la operación aeroportuaria con nuestro panel centralizado.</p>
+            <a href="#" class="btn">Ver tutorial <i class="fas fa-arrow-right"></i></a>
+        </section>
+        <div class="dashboard-sections">
+            <div>
+                <section class="section">
+                    <div class="section-header">
+                        <h2>Próximos Vuelos</h2>
+                        <a href="vuelos.html" class="btn btn-outline">Ver todos</a>
+                    </div>
+                    <table class="flights-table">
+                        <thead>
+                            <tr>
+                                <th>Vuelo</th>
+                                <th>Destino</th>
+                                <th>Salida</th>
+                                <th>Puerta</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Llenado por JavaScript -->
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html>

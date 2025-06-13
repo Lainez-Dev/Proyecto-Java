@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pasajeros - AeroSystem</title>
+    <meta http-equiv="Expires" content="0">
+	<meta http-equiv="Last-Modified" content="0">
+	<meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
+	<meta http-equiv="Pragma" content="no-cache"> 
     <link href="../css/styles-pasajeros.css" rel="stylesheet">
-
-        
     </style>
 </head>
 <body>
@@ -61,6 +63,22 @@
                     <input type="text" id="emailCreacion">
                     <br>
                     <button onclick="crearPasajero()">Crear Autor</button>
+                    <br>
+                    <button onclick="cerrarDialogo()">Cerrar</button>
+                </dialog>
+                <dialog id="dialogoPasajeroEdicion">
+                    <h3>Nombre</h3>
+                    <input type="text" id="nombreEdicion">
+                    <h3>Apellido</h3>
+                    <input type="text" id="apellidoEdicion">
+                    <h3>Fecha Nacimiento</h3>
+                    <input type="date" id="fechaNacimientoEdicion">
+                    <h3>DNI</h3>
+                    <input type="text" id="dniEdicion">
+                    <h3>Email</h3>
+                    <input type="text" id="emailEdicion">
+                    <br>
+                    <button onclick="edicionPasajero()">Guardar Cambios</button>
                     <br>
                     <button onclick="cerrarDialogo()">Cerrar</button>
                 </dialog>

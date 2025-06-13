@@ -1,6 +1,9 @@
 function buscarPasajeros() {
     let nombre = document.getElementById('nombre').value;
-    fetch("http://localhost:9999/consulta_Pasajeroes?nombre=" + nombre)
+    fetch("http://localhost:9999/consulta_pasajeros?dni=" + dni, {headers: new Headers({
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+    })})
         .then(res => res.text())
         .then(json => {
             const posts = JSON.parse(json);
@@ -9,9 +12,10 @@ function buscarPasajeros() {
                 tabla += "<tr>";
                 tabla += "<td>" + fila.id + "</td>";
                 tabla += "<td>" + fila.nombre + "</td>";
+                tabla += "<td>" + fila.apellido + "</td>";
                 tabla += "<td>" + fila.fechaNacimiento + "</td>";
-                tabla += "<td>" + fila.direccion + "</td>";   
-                tabla += "<td>" + fila.dni + "</td>";
+                tabla += "<td>" + fila.dni + "</td>";   
+                tabla += "<td>" + fila.email + "</td>";
                 // Corregida la sintaxis de las comillas y el onclick
                 tabla += "<td><button onclick=\"llamarModificarPasajero('" + fila.id + "', '" + fila.nombre + "', '" + fila.fechaNacimiento + "', '" + fila.direccion + "', '" + fila.dni + "')\">Modificar</button><button onclick=\"eliminarPasajero(" + fila.id + ")\">Eliminar</button></td>";
                 tabla += "</tr>";
@@ -24,8 +28,8 @@ function buscarPasajeros() {
         });
 }
 
-function eliminarPasajero(id) {
-    fetch('http://localhost:9999/eliminar_Pasajero?idPasajero=' + id)
+function eliminarPasajero(dni) {
+    fetch('http://localhost:9999/borrar_pasajero?dni=' + dni)
         .then(res => res.text())
         .then(json => {
             buscarPasajeroes();
@@ -36,30 +40,18 @@ function eliminarPasajero(id) {
         });
 }
 
-function llamarModificarPasajero(id, nombre, fechaNacimiento, direccion, dni) {
-    document.getElementById('idPasajero').value = id;
-    document.getElementById('nombreModificacion').value = nombre;
-    document.getElementById('fechaNacimientoMod').value = fechaNacimiento;
-    document.getElementById('direccionMod').value = direccion;
-    document.getElementById('dniMod').value = dni;
-    // Asegurarse de que el elemento existe antes de modificarlo
-    const modificador = document.getElementById('modificador');
-    if (modificador) {
-        modificador.style.display = "block";
-    }
-}
-
-function modificarPasajero() {
+function edicionPasajero() {
     let id = document.getElementById('idPasajero').value;
-    let nombre = document.getElementById('nombreModificacion').value;
-    let fecha = document.getElementById('fechaNacimientoMod').value;
-    let direccion = document.getElementById('direccionMod').value;
-    let dni = document.getElementById('dniMod').value;
-    
-    fetch('http://localhost:9999/modificar_Pasajero?idPasajero=' + id + '&nombre=' + nombre + '&dni=' + dni + '&direccion=' + direccion + '&fechaNacimiento=' + fecha)
+    let nombre = document.getElementById('nombreEdicion').value;
+    let apellido = document.getElementById('apellidoEdicion').value;
+    let fecha = document.getElementById('fechaNacimientoEdicion').value;
+    let dni = document.getElementById('dniEdicion').value;
+    let email = document.getElementById('emailEdicion').value;
+
+    fetch('http://localhost:9999/editar_pasajero?id='+id+'&nombre='+nombre+'&apellido='+apellido+'&dni='+dni+'&fechaNacimiento='+fecha+'&email='+email)
         .then(res => res.text())
         .then(json => {
-            buscarPasajeroes();
+            buscarPasajeros();
             cerrarModificador();
         })
         .catch(e => {
@@ -95,95 +87,47 @@ function crearPasajero() {
         });
 }
 
-function llamarDialogoLibro() {
-    const dialogoLibro = document.getElementById('dialogoLibro');
-    if (dialogoLibro) {
-        dialogoLibro.style.display = "block";
+function llamarDialogoPasajeroEdicion() {
+    const dialogoPasajeroEdicion = document.getElementById('dialogoPasajeroEdicion');
+    if (dialogoPasajeroEdicion) {
+        dialogoPasajeroEdicion.style.display = "block";
     }
-}
-
-function crearLibro() {
-    let titulo = document.getElementById('tituloCreacion').value;
-    let descripcion = document.getElementById('descripcionCreacion').value;
-    let fecha = document.getElementById('fechaCreacion').value;
-    let favorito = document.getElementById('favoritoCreacion').value;
-    let isbn = document.getElementById('isbnCreacion').value;
-    let idioma = document.getElementById('idiomaCreacion').value;
-    let categoria = document.getElementById('categoriaCreacion').value;
-    let editorial = document.getElementById('editorialCreacion').value;
-    
-    // Corregido: añadida la URL del endpoint y los parámetros
-    fetch('http://localhost:9999/crear_libro?titulo=' + titulo + '&descripcion=' + descripcion + '&fecha=' + fecha + '&favorito=' + favorito + '&isbn=' + isbn + '&idioma=' + idioma + '&categoria=' + categoria + '&editorial=' + editorial)
-        .then(res => res.text())
-        .then(json => {
-            const dialogoLibro = document.getElementById('dialogoLibro');
-            if (dialogoLibro) {
-                dialogoLibro.style.display = "none";
-            }
-        })
-        .catch(e => {
-            console.log('Error creando libro: ' + e.message);
-        });
 }
 
 function cerrarDialogo() {
     const dialogoPasajero = document.getElementById('dialogoPasajero');
-    const dialogoLibro = document.getElementById('dialogoLibro');
+    const dialogoPasajeroEdicion = document.getElementById('dialogoPasajeroEdicion');
     
     if (dialogoPasajero) {
         dialogoPasajero.style.display = "none";
     }
-    if (dialogoLibro) {
-        dialogoLibro.style.display = "none";
-    }
-}
-
-function cerrarModificador() {
-    document.getElementById('nombreModificacion').value = "";
-    document.getElementById('fechaNacimientoMod').value = "";
-    document.getElementById('direccionMod').value = "";
-    document.getElementById('dniMod').value = "";
-    
-    const modificador = document.getElementById('modificador');
-    if (modificador) {
-        modificador.style.display = "none";
+    if (dialogoPasajeroEdicion) {
+        dialogoPasajeroEdicion.style.display = "none";
     }
 }
 
 function cargaInicial() {
-    // Cargar editoriales
-    let elementoSelect = document.getElementById('OpcionesEditorial');
-    fetch("http://localhost:9999/buscar_editoriales")
+    fetch("http://localhost:9999/consulta_pasajeros?dni=*")
         .then(res => res.text())
         .then(json => {
-            const editoriales = JSON.parse(json);
-            editoriales.forEach(editorial => {
-                // Corregido: crear un nuevo elemento option para cada editorial
-                let opt = document.createElement('option');
-                opt.value = editorial.id;
-                opt.text = editorial.nombre;
-                elementoSelect.appendChild(opt);
+            const posts = JSON.parse(json);
+            let tabla = "";            
+            posts.forEach(fila => {
+                tabla += "<tr>";
+                tabla += "<td>" + fila.id + "</td>";
+                tabla += "<td>" + fila.nombre + "</td>";
+                tabla += "<td>" + fila.apellido + "</td>";
+                tabla += "<td>" + fila.fechaNacimiento + "</td>";
+                tabla += "<td>" + fila.dni + "</td>";   
+                tabla += "<td>" + fila.email + "</td>";
+                // Corregida la sintaxis de las comillas y el onclick
+                tabla += "<td><button onclick=\"llamarModificarPasajero('" + fila.id + "', '" + fila.nombre + "', '" + fila.fechaNacimiento + "', '" + fila.direccion + "', '" + fila.dni + "')\">Modificar</button><button onclick=\"eliminarPasajero(" + fila.id + ")\">Eliminar</button></td>";
+                tabla += "</tr>";
             });
+            var contenedor_tabla = document.getElementById("contenido_tabla");
+            contenedor_tabla.innerHTML = tabla;
         })
         .catch(e => {
-            console.log('Error cargando editoriales: ' + e.message);
-        });
-    
-    // Cargar categorías
-    let elementoSelect2 = document.getElementById('OpcionesCategoria');
-    fetch("http://localhost:9999/buscar_categorias")
-        .then(res => res.text())
-        .then(json => {
-            const categorias = JSON.parse(json);
-            categorias.forEach(categoria => {
-                // Corregido: crear un nuevo elemento option para cada categoría
-                let opt = document.createElement('option');
-                opt.value = categoria.id;
-                opt.text = categoria.nombre;
-                elementoSelect2.appendChild(opt);
-            });
-        })
-        .catch(e => {
-            console.log('Error cargando categorías: ' + e.message);
+            console.log('Error importando archivo: ' + e.message);
         });
 }

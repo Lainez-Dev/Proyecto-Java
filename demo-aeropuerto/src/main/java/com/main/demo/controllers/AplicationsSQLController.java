@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,7 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.main.demo.services.Servicio;
 
-@RestController
+@RestController 
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class AplicationsSQLController {
 	
 	@Autowired
@@ -288,9 +290,9 @@ public class AplicationsSQLController {
 	}
 	
 	@DeleteMapping("/borrar_pasajero")
-	public ResponseEntity<?> borrarPasajero(@RequestParam Integer id){
+	public ResponseEntity<?> borrarPasajero(@RequestParam String dni){
 		try {
-			return ResponseEntity.ok().body(servicio.borrarPasajero(id));
+			return ResponseEntity.ok().body(servicio.borrarPasajero(dni));
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}

@@ -228,8 +228,9 @@ public class Servicio {
             rs.close();
             ps.close();
             conn.close();
-            return new Vuelo(generatedId, numeroVuelo, origen, destino, fechaSalida, fechaLlegada);
-        } else {
+//            return new Vuelo(generatedId, numeroVuelo, origen, destino, fechaSalida, fechaLlegada);
+            return null;
+} else {
             ps.close();
             conn.close();
             throw new SQLException("No se ha podido insertar el nuevo vuelo.");
@@ -275,7 +276,7 @@ public class Servicio {
             String dest = rs.getString("destino");
             Date fechaSalida = rs.getDate("fecha_salida");
             Date fechaLlegada = rs.getDate("fecha_llegada");
-            Vuelo vuelo = new Vuelo(id, numeroVuelo, org, dest, fechaSalida, fechaLlegada);
+            Vuelo vuelo = null; //new Vuelo(id, numeroVuelo, org, dest, fechaSalida, fechaLlegada);
             vuelos.add(vuelo);
         }
         rs.close();
@@ -558,7 +559,8 @@ public class Servicio {
             System.out.println("Actualización de vuelo correcta.");
             ps.close();
             conn.close();
-            return new Vuelo(id, numeroVuelo, origen, destino, fechaSalida, fechaLlegada);
+            //return new Vuelo(id, numeroVuelo, origen, destino, fechaSalida, fechaLlegada);
+            return null;
         } else {
             ps.close();
             conn.close();
@@ -628,12 +630,12 @@ public class Servicio {
         }
     }
 
-    public String borrarPasajero(Integer id) throws SQLException {
+    public String borrarPasajero(String dni) throws SQLException {
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
 
-        String sql = "DELETE FROM pasajeros WHERE id = ?";
+        String sql = "DELETE FROM pasajeros WHERE dni = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setInt(1, id);
+        ps.setString(1, dni);
 
         int respuesta = ps.executeUpdate();
         if (respuesta == 1) {

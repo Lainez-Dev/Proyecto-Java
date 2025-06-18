@@ -267,3 +267,20 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+ALTER TABLE `puertas`
+ADD CONSTRAINT `unique_numero_puerta` UNIQUE (`numero_puerta`);
+
+ALTER TABLE `vuelos` 
+ADD CONSTRAINT `unique_numero_vuelo` UNIQUE (`numero_vuelo`);
+
+-- Si ya existen vuelos duplicados, primero debes eliminar los duplicados:
+-- DELETE v1 FROM vuelos v1 
+-- INNER JOIN vuelos v2 
+-- WHERE v1.id > v2.id AND v1.numero_vuelo = v2.numero_vuelo;
+
+-- También es recomendable agregar índices para mejorar el rendimiento:
+CREATE INDEX `idx_vuelos_origen` ON `vuelos`(`origen`);
+CREATE INDEX `idx_vuelos_destino` ON `vuelos`(`destino`);
+CREATE INDEX `idx_vuelos_fecha_salida` ON `vuelos`(`fecha_salida`);
+CREATE INDEX `idx_vuelos_fecha_llegada` ON `vuelos`(`fecha_llegada`);

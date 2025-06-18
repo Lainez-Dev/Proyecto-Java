@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AeroSystem - Gestión de Puertas</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/styles-puertas.css">
-    <link rel="stylesheet" href="../css/styles.css">
-    <script href="../js/script.js"></script>
+    <title>Puertas - AeroSystem</title>
+    <meta http-equiv="Expires" content="0">
+	<meta http-equiv="Last-Modified" content="0">
+	<meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
+	<meta http-equiv="Pragma" content="no-cache"> 
+    <link href="../css/styles-puertas.css" rel="stylesheet">
 </head>
 <body>
     <header>
@@ -17,291 +18,135 @@
                 <span>AeroSystem</span>
             </div>
             <ul class="nav-links">
-                <li><a href="inicio.html">Inicio</a></li>
+                <li><a href="../index.html">Inicio</a></li>
                 <li><a href="vuelos.html">Vuelos</a></li>
-                <li><a href="puertas.html">Puertas</a></li>
-                <li><a href="cambios.html">Updates</a></li>
+                <li><a href="aviones.html">Aviones</a></li>
+                <li><a href="aerolineas.html">Aerolíneas</a></li>
+                <li><a href="puertas.html" class="active">Puertas</a></li>
+                <li><a href="pasajeros.html">Pasajeros</a></li>
+                <li><a href="reservas.html">Reservas</a></li>
             </ul>
             <div class="user-actions">
-                <a href="#" class="btn btn-outline">
-                    <i class="fas fa-search"></i>
-                </a>
-                <a href="#" class="btn">
-                    <i class="fas fa-user"></i> Admin
-                </a>
+                <a href="#" class="btn btn-outline"><i class="fas fa-search"></i></a>
+                <a href="#" class="btn"><i class="fas fa-user"></i> Admin</a>
             </div>
         </nav>
     </header>
 
     <main>
-        <section class="welcome-banner">
-            <h1>Gestión de Puertas de Embarque</h1>
-            <p>Monitoriza y actualiza el estado de todas las puertas de embarque del aeropuerto.</p>
-            <a href="#" class="btn">Añadir Nueva Puerta <i class="fas fa-plus"></i></a>
-        </section>
+        <div class="page-header">
+            <h1><i class="fas fa-door-open"></i>Gestión de Puertas</h1>
+            <p>Administra la información de las puertas de embarque del aeropuerto</p>
+        </div>
 
-        <div class="dashboard-sections">
-            <!-- Panel de estado general -->
-            <div>
-                <section class="section">
-                    <div class="section-header">
-                        <h2>Estado de Puertas</h2>
-                        <div class="table-actions">
-                            <a href="#" class="btn btn-outline">
-                                <i class="fas fa-download"></i> Exportar
-                            </a>
-                        </div>
-                    </div>
-                    <div class="gate-view-toggle">
-                        <button class="btn btn-view active" data-view="list">
-                            <i class="fas fa-list"></i> Vista de Lista
-                        </button>
-                        <button class="btn btn-view" data-view="grid">
-                            <i class="fas fa-th"></i> Vista de Cuadrícula
-                        </button>
-                    </div>
-                    <div class="table-container">
-                        <table class="gates-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Puerta</th>
-                                    <th>Terminal</th>
-                                    <th>Estado</th>
-                                    <th>Vuelo Asignado</th>
-                                    <th>Horario</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>A1</td>
-                                    <td>T1</td>
-                                    <td><span class="gate-status occupied">Ocupada</span></td>
-                                    <td>IB2742</td>
-                                    <td>10:15 - 10:45</td>
-                                    <td class="actions-cell">
-                                        <button class="icon-button"><i class="fas fa-edit"></i></button>
-                                        <button class="icon-button status-change-btn"><i class="fas fa-exchange-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>A2</td>
-                                    <td>T1</td>
-                                    <td><span class="gate-status available">Disponible</span></td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td class="actions-cell">
-                                        <button class="icon-button"><i class="fas fa-edit"></i></button>
-                                        <button class="icon-button status-change-btn"><i class="fas fa-exchange-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>A3</td>
-                                    <td>T1</td>
-                                    <td><span class="gate-status maintenance">Mantenimiento</span></td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td class="actions-cell">
-                                        <button class="icon-button"><i class="fas fa-edit"></i></button>
-                                        <button class="icon-button status-change-btn"><i class="fas fa-exchange-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>B1</td>
-                                    <td>T1</td>
-                                    <td><span class="gate-status reserved">Reservada</span></td>
-                                    <td>BA8532</td>
-                                    <td>11:00 - 11:30</td>
-                                    <td class="actions-cell">
-                                        <button class="icon-button"><i class="fas fa-edit"></i></button>
-                                        <button class="icon-button status-change-btn"><i class="fas fa-exchange-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>B2</td>
-                                    <td>T1</td>
-                                    <td><span class="gate-status available">Disponible</span></td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td class="actions-cell">
-                                        <button class="icon-button"><i class="fas fa-edit"></i></button>
-                                        <button class="icon-button status-change-btn"><i class="fas fa-exchange-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>6</td>
-                                    <td>B3</td>
-                                    <td>T1</td>
-                                    <td><span class="gate-status occupied">Ocupada</span></td>
-                                    <td>AF7721</td>
-                                    <td>11:45 - 12:15</td>
-                                    <td class="actions-cell">
-                                        <button class="icon-button"><i class="fas fa-edit"></i></button>
-                                        <button class="icon-button status-change-btn"><i class="fas fa-exchange-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>7</td>
-                                    <td>C1</td>
-                                    <td>T2</td>
-                                    <td><span class="gate-status available">Disponible</span></td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td class="actions-cell">
-                                        <button class="icon-button"><i class="fas fa-edit"></i></button>
-                                        <button class="icon-button status-change-btn"><i class="fas fa-exchange-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>8</td>
-                                    <td>C2</td>
-                                    <td>T2</td>
-                                    <td><span class="gate-status reserved">Reservada</span></td>
-                                    <td>LH1823</td>
-                                    <td>12:30 - 13:00</td>
-                                    <td class="actions-cell">
-                                        <button class="icon-button"><i class="fas fa-edit"></i></button>
-                                        <button class="icon-button status-change-btn"><i class="fas fa-exchange-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>9</td>
-                                    <td>C3</td>
-                                    <td>T2</td>
-                                    <td><span class="gate-status maintenance">Mantenimiento</span></td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td class="actions-cell">
-                                        <button class="icon-button"><i class="fas fa-edit"></i></button>
-                                        <button class="icon-button status-change-btn"><i class="fas fa-exchange-alt"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>10</td>
-                                    <td>D1</td>
-                                    <td>T2</td>
-                                    <td><span class="gate-status available">Disponible</span></td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td class="actions-cell">
-                                        <button class="icon-button"><i class="fas fa-edit"></i></button>
-                                        <button class="icon-button status-change-btn"><i class="fas fa-exchange-alt"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+        <!-- Alert messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Controls section -->
+        <div class="controls-section">
+            <div class="controls-header">
+                <h2>Buscar y Filtrar Puertas</h2>
+                <button class="btn btn-success" onclick="llamarDialogoPuerta()">
+                    <i class="fas fa-plus"></i> Nueva Puerta
+                </button>
+                
+                <!-- Modal para crear puerta -->
+                <dialog id="dialogoPuerta">
+                    <h3>Número de Puerta</h3>
+                    <input type="text" id="numeroPuertaCreacion" placeholder="Ej: A1, B2, C3">
+                    <h3>Terminal</h3>
+                    <input type="text" id="terminalCreacion" placeholder="Ej: T1, T2">
+                    <br>
+                    <button onclick="crearPuerta()">Crear Puerta</button>
+                    <br>
+                    <button onclick="cerrarDialogo()">Cerrar</button>
+                </dialog>
+                
+                <!-- Modal para editar puerta -->
+                <dialog id="dialogoPuertaEdicion">
+                    <input type="hidden" id="idPuerta">
+                    <h3>Número de Puerta</h3>
+                    <input type="text" id="numeroPuertaEdicion">
+                    <h3>Terminal</h3>
+                    <input type="text" id="terminalEdicion">
+                    <br>
+                    <button onclick="edicionPuerta()">Guardar Cambios</button>
+                    <br>
+                    <button onclick="cerrarDialogo()">Cerrar</button>
+                </dialog>
             </div>
+            <div class="search-filters">
+                <div class="form-group">
+                    <label for="searchPuerta">Buscar por Número de Puerta</label>
+                    <input type="text" id="numeroPuerta" class="form-control" placeholder="Ingrese número de puerta..." maxlength="10">
+                </div>
+                <div class="form-group">
+                    <label for="searchTerminal">Buscar por Terminal</label>
+                    <input type="text" id="terminal" class="form-control" placeholder="Ingrese terminal..." maxlength="10">
+                </div>
+                <button class="btn" onclick="buscarPuertas()">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
 
-            <!-- Panel lateral con estadísticas y resumen -->
-            <div>
-                <section class="section">
-                    <div class="section-header">
-                        <h2>Resumen de Estado</h2>
-                    </div>
-                    <div class="gate-status-summary">
-                        <div class="status-count">
-                            <div class="status-icon available-bg">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div class="status-info">
-                                <span class="status-label">Disponibles</span>
-                                <span class="status-value">4</span>
-                            </div>
-                        </div>
-                        <div class="status-count">
-                            <div class="status-icon occupied-bg">
-                                <i class="fas fa-plane"></i>
-                            </div>
-                            <div class="status-info">
-                                <span class="status-label">Ocupadas</span>
-                                <span class="status-value">2</span>
-                            </div>
-                        </div>
-                        <div class="status-count">
-                            <div class="status-icon reserved-bg">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="status-info">
-                                <span class="status-label">Reservadas</span>
-                                <span class="status-value">2</span>
-                            </div>
-                        </div>
-                        <div class="status-count">
-                            <div class="status-icon maintenance-bg">
-                                <i class="fas fa-tools"></i>
-                            </div>
-                            <div class="status-info">
-                                <span class="status-label">Mantenimiento</span>
-                                <span class="status-value">2</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+        <!-- Stats section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-door-open"></i>
+                <h3 id="totalPuertas">0</h3>
+                <p>Total de Puertas</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <h3 id="puertasActivas">0</h3>
+                <p>Puertas Activas</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-building"></i>
+                <h3 id="terminales">0</h3>
+                <p>Terminales</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-plane"></i>
+                <h3 id="puertasOcupadas">0</h3>
+                <p>En Uso</p>
+            </div>
+        </div>
 
-                <section class="section">
-                    <div class="section-header">
-                        <h2>Cambiar Estado</h2>
-                    </div>
-                    <div class="change-status-form">
-                        <div class="form-group">
-                            <label for="gate-select">Seleccionar Puerta</label>
-                            <select id="gate-select" class="form-control">
-                                <option value="">-- Seleccionar puerta --</option>
-                                <option value="A1">A1</option>
-                                <option value="A2">A2</option>
-                                <option value="A3">A3</option>
-                                <option value="B1">B1</option>
-                                <option value="B2">B2</option>
-                                <option value="B3">B3</option>
-                                <option value="C1">C1</option>
-                                <option value="C2">C2</option>
-                                <option value="C3">C3</option>
-                                <option value="D1">D1</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="status-select">Nuevo Estado</label>
-                            <select id="status-select" class="form-control">
-                                <option value="">-- Seleccionar estado --</option>
-                                <option value="available">Disponible</option>
-                                <option value="occupied">Ocupada</option>
-                                <option value="reserved">Reservada</option>
-                                <option value="maintenance">Mantenimiento</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="flight-select">Vuelo (si aplica)</label>
-                            <select id="flight-select" class="form-control">
-                                <option value="">-- Sin vuelo asignado --</option>
-                                <option value="IB2742">IB2742</option>
-                                <option value="BA8532">BA8532</option>
-                                <option value="AF7721">AF7721</option>
-                                <option value="LH1823">LH1823</option>
-                                <option value="VY3421">VY3421</option>
-                            </select>
-                        </div>
-                        <button class="btn">Actualizar Estado</button>
-                    </div>
-                </section>
+        <!-- Table section -->
+        <div class="table-section">
+            <div class="table-header">
+                <h3>Lista de Puertas</h3>
+                <button class="btn btn-outline btn-sm" onclick="cargarPuertas()">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+            </div>
+            <div id="tableContainer">
+                <table class="passengers-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Número de Puerta</th>
+                            <th>Terminal</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contenido_tabla">
+                        <!-- Contenido generado por JavaScript -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div>&copy; 2025 AeroSystem - Sistema de Gestión Aeroportuaria</div>
-        </div>
-    </footer>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
-    <script src="scripts.js"></script>
+    <script src="../js/puertas.js"></script>
+    <script>
+        // Cargar puertas al iniciar la página
+        window.onload = function() {
+            cargarPuertas();
+        }
+    </script>
 </body>
 </html>

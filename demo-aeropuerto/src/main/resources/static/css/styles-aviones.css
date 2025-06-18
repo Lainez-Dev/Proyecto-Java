@@ -7,6 +7,7 @@
     --success: #2ecc71;
     --warning: #f39c12;
     --danger: #e74c3c;
+    --aircraft: #9b59b6;
 }
 
 * {
@@ -81,10 +82,11 @@ main {
     max-width: 1400px;
     margin: 2rem auto;
     padding: 0 20px;
+    position: relative;
 }
 
 .page-header {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, var(--primary), var(--aircraft));
     color: white;
     padding: 2rem;
     border-radius: 10px;
@@ -237,6 +239,18 @@ main {
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     text-align: center;
     transition: transform 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--aircraft), var(--secondary));
 }
 
 .stat-card:hover {
@@ -245,7 +259,7 @@ main {
 
 .stat-card i {
     font-size: 2.5rem;
-    color: var(--secondary);
+    color: var(--aircraft);
     margin-bottom: 1rem;
 }
 
@@ -265,6 +279,7 @@ main {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
 }
 
 .table-header {
@@ -281,12 +296,17 @@ main {
     margin: 0;
 }
 
-.flights-table {
+.table-actions-header {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.aviones-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.flights-table th {
+.aviones-table th {
     background-color: #f8f9fa;
     padding: 1rem;
     text-align: left;
@@ -295,13 +315,13 @@ main {
     border-bottom: 2px solid #e9ecef;
 }
 
-.flights-table td {
+.aviones-table td {
     padding: 1rem;
     border-bottom: 1px solid #eee;
     vertical-align: middle;
 }
 
-.flights-table tr:hover {
+.aviones-table tr:hover {
     background-color: #f8f9fa;
 }
 
@@ -310,153 +330,59 @@ main {
     gap: 0.5rem;
 }
 
-/* Flight status styles actualizados */
-.flight-status {
+/* Aircraft status styles */
+.aircraft-status {
     display: inline-block;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    transition: all 0.3s ease;
 }
 
-.status-a-tiempo {
+.status-disponible {
     background-color: rgba(46, 204, 113, 0.2);
     color: #27ae60;
     border: 1px solid rgba(46, 204, 113, 0.4);
 }
 
-.status-embarcando {
+.status-en-vuelo {
     background-color: rgba(52, 152, 219, 0.2);
     color: #2980b9;
     border: 1px solid rgba(52, 152, 219, 0.4);
-    animation: pulse 2s infinite;
 }
 
-.status-despego {
-    background-color: rgba(155, 89, 182, 0.2);
-    color: #8e44ad;
-    border: 1px solid rgba(155, 89, 182, 0.4);
-}
-
-.status-llego {
-    background-color: rgba(46, 204, 113, 0.3);
-    color: #1e8449;
-    border: 1px solid rgba(46, 204, 113, 0.5);
-    font-weight: bold;
-}
-
-.status-retrasado {
+.status-mantenimiento {
     background-color: rgba(243, 156, 18, 0.2);
     color: #d35400;
     border: 1px solid rgba(243, 156, 18, 0.4);
 }
 
-.status-cancelado {
+.status-fuera-servicio {
     background-color: rgba(231, 76, 60, 0.2);
     color: #c0392b;
     border: 1px solid rgba(231, 76, 60, 0.4);
 }
 
-/* Animación para estado embarcando */
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0);
-    }
-}
-
-/* Indicador de tiempo real */
-.real-time-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 0.5rem;
-}
-
-.real-time-indicator::before {
-    content: "🔄";
-    animation: spin 2s linear infinite;
-}
-
-.real-time-indicator.active::before {
-    content: "✅";
-    animation: none;
-}
-
-/* Mejoras visuales para el estado de vuelos */
-.flight-row:hover .flight-status {
-    transform: scale(1.05);
-}
-
-/* Indicadores de tiempo en la tabla */
-.time-indicator {
-    font-size: 0.7rem;
-    color: #888;
-    display: block;
-    margin-top: 0.2rem;
-}
-
-.time-indicator.urgent {
-    color: #e74c3c;
-    font-weight: bold;
-}
-
-.time-indicator.warning {
-    color: #f39c12;
-    font-weight: bold;
-}
-
-.time-indicator.normal {
-    color: #27ae60;
-}
-
-/* Estilos para tooltips de información de estado */
-.status-tooltip {
-    position: relative;
-    cursor: help;
-}
-
-.status-tooltip:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
+/* Model badges */
+.model-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--aircraft), #8e44ad);
     color: white;
-    padding: 0.5rem;
+    padding: 0.25rem 0.5rem;
     border-radius: 4px;
-    font-size: 0.7rem;
-    white-space: nowrap;
-    z-index: 1000;
-    opacity: 0;
-    animation: fadeIn 0.3s ease forwards;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
-.status-tooltip:hover::before {
-    content: "";
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(100%);
-    border: 5px solid transparent;
-    border-top-color: #333;
-    z-index: 1000;
+.capacity-info {
+    font-size: 0.9rem;
+    color: #666;
 }
 
-@keyframes fadeIn {
-    to {
-        opacity: 1;
-    }
+.capacity-info i {
+    margin-right: 0.25rem;
+    color: var(--secondary);
 }
 
 /* Modal styles */
@@ -465,7 +391,7 @@ dialog {
     border: 1px solid #ccc;
     border-radius: 8px;
     padding: 20px;
-    min-width: 400px;
+    min-width: 450px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     background: white;
 }
@@ -481,7 +407,8 @@ dialog h3 {
 }
 
 dialog input[type="text"],
-dialog input[type="datetime-local"] {
+dialog input[type="number"],
+dialog select {
     width: calc(100% - 16px);
     padding: 8px;
     margin-bottom: 15px;
@@ -491,7 +418,8 @@ dialog input[type="datetime-local"] {
 }
 
 dialog input[type="text"]:focus,
-dialog input[type="datetime-local"]:focus {
+dialog input[type="number"]:focus,
+dialog select:focus {
     border-color: var(--secondary);
     outline: none;
 }
@@ -521,6 +449,76 @@ dialog button:last-of-type {
 
 dialog button:last-of-type:hover {
     background-color: #5a6268;
+}
+
+/* Aircraft details panel */
+.aircraft-details {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+}
+
+.aircraft-details.show {
+    right: 0;
+}
+
+.details-header {
+    background: linear-gradient(135deg, var(--primary), var(--aircraft));
+    color: white;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.details-header h3 {
+    margin: 0;
+}
+
+.close-details {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.close-details:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.details-content {
+    padding: 1rem;
+}
+
+.detail-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.detail-value {
+    color: #666;
 }
 
 /* Alert styles */
@@ -557,12 +555,12 @@ dialog button:last-of-type:hover {
         grid-template-columns: 1fr;
     }
     
-    .flights-table {
+    .aviones-table {
         font-size: 0.9rem;
     }
     
-    .flights-table th,
-    .flights-table td {
+    .aviones-table th,
+    .aviones-table td {
         padding: 0.5rem;
     }
     
@@ -574,6 +572,11 @@ dialog button:last-of-type:hover {
         margin: 1rem;
         width: calc(100% - 2rem);
         min-width: unset;
+    }
+    
+    .aircraft-details {
+        width: 100%;
+        right: -100%;
     }
 }
 
@@ -610,4 +613,25 @@ dialog button:last-of-type:hover {
 
 .empty-state h3 {
     margin-bottom: 1rem;
+}
+
+/* Aircraft type icons */
+.aircraft-type-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+.boeing::before {
+    content: "✈️";
+}
+
+.airbus::before {
+    content: "🛩️";
+}
+
+.other::before {
+    content: "🛫";
 }

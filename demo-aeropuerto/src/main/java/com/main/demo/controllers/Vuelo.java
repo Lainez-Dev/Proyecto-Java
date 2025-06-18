@@ -1,7 +1,6 @@
 package com.main.demo.controllers;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class Vuelo {
     private Integer id;
@@ -16,7 +15,7 @@ public class Vuelo {
     
     // Constructor completo
     public Vuelo(Integer id, String numeroVuelo, String origen, String destino, 
-                 LocalDateTime fechaSalida, LocalDateTime fechaLlegada) {
+                LocalDateTime fechaSalida, LocalDateTime fechaLlegada) {
         this.id = id;
         this.numeroVuelo = numeroVuelo;
         this.origen = origen;
@@ -27,7 +26,7 @@ public class Vuelo {
     
     // Constructor para creación (sin ID)
     public Vuelo(String numeroVuelo, String origen, String destino, 
-                 LocalDateTime fechaSalida, LocalDateTime fechaLlegada) {
+                LocalDateTime fechaSalida, LocalDateTime fechaLlegada) {
         this.numeroVuelo = numeroVuelo;
         this.origen = origen;
         this.destino = destino;

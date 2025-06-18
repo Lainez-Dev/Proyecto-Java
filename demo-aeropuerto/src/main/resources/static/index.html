@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AeroSystem - Sistema de Gestión Aeroportuaria</title>
+    <meta http-equiv="Expires" content="0">
+	<meta http-equiv="Last-Modified" content="0">
+	<meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
+	<meta http-equiv="Pragma" content="no-cache">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles-inicio.css">
 </head>
 <body>
     <header>
@@ -18,7 +23,7 @@
                 <li><a href="index.html" class="active">Inicio</a></li>
                 <li><a href="html/vuelos.html">Vuelos</a></li>
                 <li><a href="html/aviones.html">Aviones</a></li>
-                <li><a href="html/aerolineas.html">Aerolineas</a></li>
+                <li><a href="html/aerolineas.html">Aerolíneas</a></li>
                 <li><a href="html/puertas.html">Puertas</a></li>
                 <li><a href="html/pasajeros.html">Pasajeros</a></li>
                 <li><a href="html/reservas.html">Reservas</a></li>
@@ -31,37 +36,230 @@
     </header>
 
     <main>
+        <!-- Banner principal -->
         <section class="welcome-banner">
-            <h1>Pasajeros</h1>
-            <p>Administra de manera eficiente todos los aspectos de la operación aeroportuaria con nuestro panel centralizado.</p>
-            <a href="#" class="btn">Ver tutorial <i class="fas fa-arrow-right"></i></a>
-        </section>
-        <div class="dashboard-sections">
-            <div>
-                <section class="section">
-                    <div class="section-header">
-                        <h2>Próximos Vuelos</h2>
-                        <a href="vuelos.html" class="btn btn-outline">Ver todos</a>
+            <div class="banner-content">
+                <h1><i class="fas fa-home"></i> Panel de Control AeroSystem</h1>
+                <p>Administra de manera eficiente todos los aspectos de la operación aeroportuaria con nuestro panel centralizado.</p>
+                <div class="banner-stats">
+                    <div class="banner-stat">
+                        <span class="stat-number" id="estatusGeneral">Cargando...</span>
+                        <span class="stat-label">Sistema Activo</span>
                     </div>
-                    <table class="flights-table">
-                        <thead>
-                            <tr>
-                                <th>Vuelo</th>
-                                <th>Destino</th>
-                                <th>Salida</th>
-                                <th>Puerta</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Llenado por JavaScript -->
-                        </tbody>
-                    </table>
-                </section>
+                    <div class="banner-stat">
+                        <span class="stat-number" id="horaActual">--:--</span>
+                        <span class="stat-label">Hora Actual</span>
+                    </div>
+                </div>
             </div>
+        </section>
+
+        <!-- Estadísticas principales -->
+        <section class="stats-overview">
+            <div class="stats-grid">
+                <div class="stat-card vuelos-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-plane-departure"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalVuelos">0</h3>
+                        <p>Total Vuelos</p>
+                        <span class="stat-trend" id="trendVuelos">+5% este mes</span>
+                    </div>
+                    <a href="html/vuelos.html" class="stat-link">Ver detalles <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="stat-card pasajeros-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalPasajeros">0</h3>
+                        <p>Total Pasajeros</p>
+                        <span class="stat-trend" id="trendPasajeros">Registrados</span>
+                    </div>
+                    <a href="html/pasajeros.html" class="stat-link">Ver detalles <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="stat-card puertas-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalPuertas">0</h3>
+                        <p>Puertas Activas</p>
+                        <span class="stat-trend" id="puertasDisponibles">0 disponibles</span>
+                    </div>
+                    <a href="html/puertas.html" class="stat-link">Ver detalles <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="stat-card aerolineas-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalAerolineas">0</h3>
+                        <p>Aerolíneas</p>
+                        <span class="stat-trend" id="trendAerolineas">Registradas</span>
+                    </div>
+                    <a href="html/aerolineas.html" class="stat-link">Ver detalles <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Secciones principales -->
+        <div class="main-sections">
+            <!-- Vuelos recientes -->
+            <section class="section vuelos-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-plane"></i> Vuelos Recientes</h2>
+                    <a href="html/vuelos.html" class="btn btn-outline">Ver todos</a>
+                </div>
+                <div class="content-preview">
+                    <div id="vuelosLoading" class="loading-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Cargando vuelos...</p>
+                    </div>
+                    <div id="vuelosContent" class="preview-table" style="display: none;">
+                        <table class="preview-flights-table">
+                            <thead>
+                                <tr>
+                                    <th>Vuelo</th>
+                                    <th>Origen</th>
+                                    <th>Destino</th>
+                                    <th>Salida</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vuelosTableBody">
+                                <!-- Contenido generado por JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="vuelosEmpty" class="empty-preview" style="display: none;">
+                        <i class="fas fa-plane"></i>
+                        <p>No hay vuelos registrados</p>
+                        <a href="html/vuelos.html" class="btn">Agregar vuelo</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pasajeros recientes -->
+            <section class="section pasajeros-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> Pasajeros Recientes</h2>
+                    <a href="html/pasajeros.html" class="btn btn-outline">Ver todos</a>
+                </div>
+                <div class="content-preview">
+                    <div id="pasajerosLoading" class="loading-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Cargando pasajeros...</p>
+                    </div>
+                    <div id="pasajerosContent" class="preview-list" style="display: none;">
+                        <div id="pasajerosListContent">
+                            <!-- Contenido generado por JavaScript -->
+                        </div>
+                    </div>
+                    <div id="pasajerosEmpty" class="empty-preview" style="display: none;">
+                        <i class="fas fa-users"></i>
+                        <p>No hay pasajeros registrados</p>
+                        <a href="html/pasajeros.html" class="btn">Agregar pasajero</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="secondary-sections">
+            <!-- Estado de puertas -->
+            <section class="section puertas-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-door-open"></i> Estado de Puertas</h2>
+                    <a href="html/puertas.html" class="btn btn-outline">Gestionar</a>
+                </div>
+                <div class="content-preview">
+                    <div id="puertasLoading" class="loading-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Cargando puertas...</p>
+                    </div>
+                    <div id="puertasContent" class="puertas-grid" style="display: none;">
+                        <!-- Contenido generado por JavaScript -->
+                    </div>
+                    <div id="puertasEmpty" class="empty-preview" style="display: none;">
+                        <i class="fas fa-door-open"></i>
+                        <p>No hay puertas registradas</p>
+                        <a href="html/puertas.html" class="btn">Agregar puerta</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Actividad reciente -->
+            <section class="section activity-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-clock"></i> Actividad Reciente</h2>
+                    <button class="btn btn-outline btn-sm" onclick="cargarActividad()">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                </div>
+                <div class="content-preview">
+                    <ul class="activity-list" id="activityList">
+                        <!-- Contenido generado por JavaScript -->
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Acciones rápidas -->
+            <section class="section quick-actions-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-bolt"></i> Acciones Rápidas</h2>
+                </div>
+                <div class="quick-actions">
+                    <a href="html/vuelos.html" class="action-card">
+                        <i class="fas fa-plus"></i>
+                        <span>Nuevo Vuelo</span>
+                    </a>
+                    <a href="html/pasajeros.html" class="action-card">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Nuevo Pasajero</span>
+                    </a>
+                    <a href="html/puertas.html" class="action-card">
+                        <i class="fas fa-door-closed"></i>
+                        <span>Nueva Puerta</span>
+                    </a>
+                    <a href="html/aerolineas.html" class="action-card">
+                        <i class="fas fa-building"></i>
+                        <span>Nueva Aerolínea</span>
+                    </a>
+                    <a href="html/reservas.html" class="action-card">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>Nueva Reserva</span>
+                    </a>
+                    <a href="html/aviones.html" class="action-card">
+                        <i class="fas fa-plane"></i>
+                        <span>Nuevo Avión</span>
+                    </a>
+                </div>
+            </section>
         </div>
     </main>
+
+    <footer>
+        <div class="footer-content">
+            <div>&copy; 2025 AeroSystem - Sistema de Gestión Aeroportuaria</div>
+            <div class="footer-links">
+                <a href="#">Documentación</a>
+                <a href="#">Soporte</a>
+                <a href="#">API</a>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
-    <script src="/js/script.js"></script>
+    <script src="js/inicio.js"></script>
+    <script>
+        // Inicializar la página al cargar
+        window.onload = function() {
+            inicializarDashboard();
+        }
+    </script>
 </body>
 </html>

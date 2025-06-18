@@ -1,0 +1,533 @@
+/* Estilos específicos para la página de inicio */
+
+/* Banner principal mejorado */
+.welcome-banner {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, #9b59b6 100%);
+    color: white;
+    padding: 3rem 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    pointer-events: none;
+}
+
+.banner-content {
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-banner h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.welcome-banner h1 i {
+    margin-right: 15px;
+    font-size: 2rem;
+}
+
+.welcome-banner p {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.banner-stats {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.banner-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    min-width: 120px;
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Estadísticas principales */
+.stats-overview {
+    margin-bottom: 2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--secondary), var(--primary));
+}
+
+.vuelos-card::before { background: linear-gradient(90deg, #3498db, #2980b9); }
+.pasajeros-card::before { background: linear-gradient(90deg, #2ecc71, #27ae60); }
+.puertas-card::before { background: linear-gradient(90deg, #f39c12, #e67e22); }
+.aerolineas-card::before { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.vuelos-card .stat-icon { background: linear-gradient(135deg, #3498db, #2980b9); }
+.pasajeros-card .stat-icon { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.puertas-card .stat-icon { background: linear-gradient(135deg, #f39c12, #e67e22); }
+.aerolineas-card .stat-icon { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+
+.stat-content h3 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+}
+
+.stat-content p {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-trend {
+    font-size: 0.85rem;
+    color: #2ecc71;
+    font-weight: 500;
+}
+
+.stat-link {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 1rem;
+    color: var(--secondary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.stat-link:hover {
+    color: var(--primary);
+}
+
+.stat-link i {
+    margin-left: 0.5rem;
+    transition: transform 0.3s;
+}
+
+.stat-link:hover i {
+    transform: translateX(3px);
+}
+
+/* Secciones principales */
+.main-sections {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.secondary-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+/* Contenido de previsualización */
+.content-preview {
+    min-height: 200px;
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.loading-state i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--secondary);
+}
+
+.empty-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #666;
+    text-align: center;
+}
+
+.empty-preview i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #ddd;
+}
+
+.empty-preview p {
+    margin-bottom: 1rem;
+}
+
+/* Tabla de vista previa */
+.preview-table {
+    overflow-x: auto;
+}
+
+.preview-flights-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.preview-flights-table th,
+.preview-flights-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.preview-flights-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.preview-flights-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Lista de vista previa de pasajeros */
+.preview-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.passenger-preview-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s;
+}
+
+.passenger-preview-item:hover {
+    background-color: #f8f9fa;
+}
+
+.passenger-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.passenger-info h4 {
+    margin: 0 0 0.25rem 0;
+    color: var(--dark);
+    font-size: 0.95rem;
+}
+
+.passenger-info p {
+    margin: 0;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+/* Grid de puertas */
+.puertas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+    padding: 1rem 0;
+}
+
+.puerta-preview {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.puerta-preview:hover {
+    transform: scale(1.05);
+}
+
+.puerta-preview.disponible {
+    background: rgba(46, 204, 113, 0.1);
+    border-color: #2ecc71;
+}
+
+.puerta-preview.ocupada {
+    background: rgba(231, 76, 60, 0.1);
+    border-color: #e74c3c;
+}
+
+.puerta-preview.mantenimiento {
+    background: rgba(149, 165, 166, 0.1);
+    border-color: #95a5a6;
+}
+
+.puerta-preview strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.puerta-preview small {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+/* Lista de actividad */
+.activity-list {
+    list-style: none;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+}
+
+.activity-icon.vuelo {
+    background: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+}
+
+.activity-icon.pasajero {
+    background: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+}
+
+.activity-icon.puerta {
+    background: rgba(243, 156, 18, 0.1);
+    color: #f39c12;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--dark);
+    font-size: 0.9rem;
+}
+
+.activity-time {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+/* Acciones rápidas */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--dark);
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.action-card:hover {
+    background: var(--secondary);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+.action-card i {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.action-card span {
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Estados de vuelos */
+.flight-status {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-on-time {
+    background-color: rgba(46, 204, 113, 0.2);
+    color: #27ae60;
+}
+
+.status-delayed {
+    background-color: rgba(243, 156, 18, 0.2);
+    color: #d35400;
+}
+
+.status-boarding {
+    background-color: rgba(52, 152, 219, 0.2);
+    color: #2980b9;
+}
+
+.status-cancelled {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #c0392b;
+}
+
+/* Reloj en tiempo real */
+.real-time-clock {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .main-sections {
+        grid-template-columns: 1fr;
+    }
+    
+    .secondary-sections {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .welcome-banner {
+        padding: 2rem 1rem;
+    }
+    
+    .welcome-banner h1 {
+        font-size: 2rem;
+    }
+    
+    .banner-stats {
+        justify-content: center;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .puertas-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .puertas-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

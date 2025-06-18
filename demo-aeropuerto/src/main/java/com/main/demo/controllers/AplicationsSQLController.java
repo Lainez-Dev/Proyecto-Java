@@ -3,6 +3,14 @@ package com.main.demo.controllers;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,13 +42,40 @@ public class AplicationsSQLController {
 		}
 	}
 	
+	// Endpoint mejorado para consultar vuelos con filtros opcionales
 	@GetMapping("/consulta_vuelos")
-	public ResponseEntity<?> buscarVuelos(@RequestParam String origen,
-			@RequestParam String destino){
+	public ResponseEntity<?> buscarVuelos(
+			@RequestParam(required = false, defaultValue = "*") String origen,
+			@RequestParam(required = false, defaultValue = "*") String destino,
+			@RequestParam(required = false, defaultValue = "*") String numeroVuelo) {
 		try {
-			return ResponseEntity.ok().body(servicio.buscarVuelos(origen, destino));
+			return ResponseEntity.ok().body(servicio.buscarVuelosConFiltros(origen, destino, numeroVuelo));
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
+		}
+	}
+
+	// Endpoint para verificar si existe un vuelo
+	@GetMapping("/verificar_vuelo")
+	public ResponseEntity<?> verificarVuelo(@RequestParam String numeroVuelo) {
+		try {
+			boolean existe = servicio.existeVuelo(numeroVuelo);
+			return ResponseEntity.ok().body("{\"existe\": " + existe + "}");
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	// Endpoint para verificar vuelo en edición
+	@GetMapping("/verificar_vuelo_edicion")
+	public ResponseEntity<?> verificarVueloEdicion(
+			@RequestParam String numeroVuelo, 
+			@RequestParam Integer id) {
+		try {
+			boolean existe = servicio.existeVueloParaEdicion(numeroVuelo, id);
+			return ResponseEntity.ok().body("{\"existe\": " + existe + "}");
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
@@ -72,9 +107,11 @@ public class AplicationsSQLController {
 	}
 	
 	@GetMapping("/consulta_puertas")
-	public ResponseEntity<?> buscarPuertas(){
+	public ResponseEntity<?> buscarPuertas(
+			@RequestParam(required = false, defaultValue = "*") String numeroPuerta,
+			@RequestParam(required = false, defaultValue = "*") String terminal) {
 		try {
-			return ResponseEntity.ok().body(servicio.buscarPuertas());
+			return ResponseEntity.ok().body(servicio.buscarPuertasConFiltros(numeroPuerta, terminal));
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
 		}
@@ -162,10 +199,21 @@ public class AplicationsSQLController {
 	public ResponseEntity<?> crearVuelo(@RequestParam String numeroVuelo,
 			@RequestParam String origen,
 			@RequestParam String destino,
-			@RequestParam Date fechaSalida,
-			@RequestParam Date fechaLlegada){
+			@RequestParam String fechaSalida,
+			@RequestParam String fechaLlegada){
 		try {
-			return ResponseEntity.ok().body(servicio.crearVuelo(numeroVuelo, origen, destino, fechaSalida, fechaLlegada));
+			// Convertir strings de fecha a Date
+			Date fechaSalidaDate = Date.valueOf(fechaSalida);
+			Date fechaLlegadaDate = Date.valueOf(fechaLlegada);
+			
+			// Validar que la fecha de llegada sea posterior a la de salida
+			if (fechaLlegadaDate.before(fechaSalidaDate) || fechaLlegadaDate.equals(fechaSalidaDate)) {
+				return ResponseEntity.badRequest().body("La fecha de llegada debe ser posterior a la fecha de salida");
+			}
+			
+			return ResponseEntity.ok().body(servicio.crearVuelo(numeroVuelo, origen, destino, fechaSalidaDate, fechaLlegadaDate));
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body("Formato de fecha inválido. Use YYYY-MM-DD");
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
 		}
@@ -251,10 +299,21 @@ public class AplicationsSQLController {
 			@RequestParam String numeroVuelo,
 			@RequestParam String origen,
 			@RequestParam String destino,
-			@RequestParam Date fechaSalida,
-			@RequestParam Date fechaLlegada){
+			@RequestParam String fechaSalida,
+			@RequestParam String fechaLlegada){
 		try {
-			return ResponseEntity.ok().body(servicio.editarVuelo(id, numeroVuelo, origen, destino, fechaSalida, fechaLlegada));
+			// Convertir strings de fecha a Date
+			Date fechaSalidaDate = Date.valueOf(fechaSalida);
+			Date fechaLlegadaDate = Date.valueOf(fechaLlegada);
+			
+			// Validar que la fecha de llegada sea posterior a la de salida
+			if (fechaLlegadaDate.before(fechaSalidaDate) || fechaLlegadaDate.equals(fechaSalidaDate)) {
+				return ResponseEntity.badRequest().body("La fecha de llegada debe ser posterior a la fecha de salida");
+			}
+			
+			return ResponseEntity.ok().body(servicio.editarVuelo(id, numeroVuelo, origen, destino, fechaSalidaDate, fechaLlegadaDate));
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body("Formato de fecha inválido. Use YYYY-MM-DD");
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
 		}
@@ -322,6 +381,163 @@ public class AplicationsSQLController {
 			return ResponseEntity.ok().body(servicio.borrarVuelo(id));
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	@GetMapping("/verificar_puerta")
+	public ResponseEntity<?> verificarPuerta(@RequestParam String numeroPuerta) {
+		try {
+			boolean existe = servicio.existePuerta(numeroPuerta);
+			return ResponseEntity.ok().body("{\"existe\": " + existe + "}");
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	@GetMapping("/verificar_puerta_edicion")
+	public ResponseEntity<?> verificarPuertaEdicion(
+			@RequestParam String numeroPuerta, 
+			@RequestParam Integer id) {
+		try {
+			boolean existe = servicio.existePuertaParaEdicion(numeroPuerta, id);
+			return ResponseEntity.ok().body("{\"existe\": " + existe + "}");
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	// Endpoint para obtener estadísticas del dashboard
+	@GetMapping("/estadisticas_dashboard")
+	public ResponseEntity<?> obtenerEstadisticasDashboard() {
+		try {
+			Map<String, Object> estadisticas = new HashMap<>();
+			
+			// Contar pasajeros
+			List<Pasajero> pasajeros = servicio.buscarPasajeros("*");
+			estadisticas.put("totalPasajeros", pasajeros.size());
+			
+			// Contar puertas
+			List<Puerta> puertas = servicio.buscarPuertas();
+			estadisticas.put("totalPuertas", puertas.size());
+			
+			// Contar aerolíneas
+			List<Aerolinea> aerolineas = servicio.buscarAerolineas("*");
+			estadisticas.put("totalAerolineas", aerolineas.size());
+			
+			// Estadísticas adicionales (simuladas por ahora)
+			estadisticas.put("totalVuelos", 15);
+			estadisticas.put("vuelosHoy", 8);
+			estadisticas.put("puertasDisponibles", Math.max(0, puertas.size() - (puertas.size() / 3)));
+			estadisticas.put("reservasActivas", 42);
+			
+			return ResponseEntity.ok().body(estadisticas);
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	// Endpoint para obtener actividad reciente
+	@GetMapping("/actividad_reciente")
+	public ResponseEntity<?> obtenerActividadReciente() {
+		try {
+			List<Map<String, Object>> actividades = new ArrayList<>();
+			
+			// Obtener algunos pasajeros recientes (últimos 5)
+			List<Pasajero> pasajerosRecientes = servicio.buscarPasajeros("*");
+			for (int i = 0; i < Math.min(3, pasajerosRecientes.size()); i++) {
+				Pasajero p = pasajerosRecientes.get(i);
+				Map<String, Object> actividad = new HashMap<>();
+				actividad.put("tipo", "pasajero");
+				actividad.put("titulo", "Pasajero registrado: " + p.getNombre() + " " + p.getApellido());
+				actividad.put("tiempo", "Hace " + (i + 1) * 15 + " minutos");
+				actividad.put("icono", "fas fa-user-plus");
+				actividades.add(actividad);
+			}
+			
+			// Obtener algunas puertas recientes
+			List<Puerta> puertasRecientes = servicio.buscarPuertas();
+			for (int i = 0; i < Math.min(2, puertasRecientes.size()); i++) {
+				Puerta p = puertasRecientes.get(i);
+				Map<String, Object> actividad = new HashMap<>();
+				actividad.put("tipo", "puerta");
+				actividad.put("titulo", "Puerta configurada: " + p.getNumeroPuerta() + " en " + p.getTerminal());
+				actividad.put("tiempo", "Hace " + (i + 2) * 30 + " minutos");
+				actividad.put("icono", "fas fa-door-open");
+				actividades.add(actividad);
+			}
+			
+			// Agregar algunas actividades simuladas
+			Map<String, Object> actividadVuelo = new HashMap<>();
+			actividadVuelo.put("tipo", "vuelo");
+			actividadVuelo.put("titulo", "Vuelo IB2742 programado para salida");
+			actividadVuelo.put("tiempo", "Hace 1 hora");
+			actividadVuelo.put("icono", "fas fa-plane-departure");
+			actividades.add(actividadVuelo);
+			
+			return ResponseEntity.ok().body(actividades);
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	// Endpoint para obtener el estado del sistema
+	@GetMapping("/estado_sistema")
+	public ResponseEntity<?> obtenerEstadoSistema() {
+		try {
+			Map<String, Object> estado = new HashMap<>();
+			
+			// Verificar conectividad de base de datos
+			servicio.buscarPasajeros("*"); // Test de conexión
+			
+			// Obtener fecha y hora actual
+			LocalDateTime ahora = LocalDateTime.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			
+			estado.put("estadoGeneral", "✅ Sistema Activo");
+			estado.put("baseDatos", "Conectada");
+			estado.put("servicios", "Funcionando");
+			estado.put("ultimaActualizacion", ahora.format(formatter));
+			
+			return ResponseEntity.ok().body(estado);
+		} catch (Exception e) {
+			Map<String, Object> estado = new HashMap<>();
+			LocalDateTime ahora = LocalDateTime.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			
+			estado.put("estadoGeneral", "❌ Error de Sistema");
+			estado.put("baseDatos", "Error");
+			estado.put("servicios", "Con problemas");
+			estado.put("error", e.getMessage());
+			estado.put("ultimaActualizacion", ahora.format(formatter));
+			
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(estado);
+		}
+	}
+	
+	// MÉTODO AUXILIAR PARA PARSEAR DATETIME
+	private Timestamp parseDateTime(String fechaString) throws DateTimeParseException {
+		try {
+			// Intentar formato completo: "yyyy-MM-dd HH:mm:ss"
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+			LocalDateTime dateTime = LocalDateTime.parse(fechaString, formatter);
+			return Timestamp.valueOf(dateTime);
+		} catch (DateTimeParseException e1) {
+			try {
+				// Intentar formato ISO: "yyyy-MM-ddTHH:mm:ss"
+				LocalDateTime dateTime = LocalDateTime.parse(fechaString);
+				return Timestamp.valueOf(dateTime);
+			} catch (DateTimeParseException e2) {
+				try {
+					// Intentar formato solo fecha: "yyyy-MM-dd" (agregar hora por defecto)
+					DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+					LocalDateTime dateTime = LocalDateTime.parse(fechaString + " 00:00:00", 
+						DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+					return Timestamp.valueOf(dateTime);
+				} catch (DateTimeParseException e3) {
+					throw new DateTimeParseException("Formato de fecha no válido. Formatos aceptados: " +
+						"'yyyy-MM-dd HH:mm:ss', 'yyyy-MM-ddTHH:mm:ss', 'yyyy-MM-dd'", fechaString, 0);
+				}
+			}
 		}
 	}
 }

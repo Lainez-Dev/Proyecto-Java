@@ -8,6 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +59,47 @@ public class Servicio {
         } else {
             ps.close();
             conn.close();
-            throw new SQLException("No se ha podido insertar la nueva aerolínea.");
+            throw new SQLException("No se ha podido eliminar la puerta.");
+        }
+    }
+
+    public String borrarReserva(Integer id) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+
+        String sql = "DELETE FROM reservas WHERE id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, id);
+
+        int respuesta = ps.executeUpdate();
+        if (respuesta == 1) {
+            System.out.println("Eliminación de reserva correcta.");
+            ps.close();
+            conn.close();
+            return "Reserva eliminada correctamente.";
+        } else {
+            ps.close();
+            conn.close();
+            throw new SQLException("No se ha podido eliminar la reserva.");
+        }
+    }
+
+    public String borrarVuelo(Integer id) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+
+        String sql = "DELETE FROM vuelos WHERE id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, id);
+
+        int respuesta = ps.executeUpdate();
+        if (respuesta == 1) {
+            System.out.println("Eliminación de vuelo correcta.");
+            ps.close();
+            conn.close();
+            return "Vuelo eliminado correctamente.";
+        } else {
+            ps.close();
+            conn.close();
+            throw new SQLException("No se ha podido eliminar el vuelo.");
         }
     }
 
@@ -184,7 +226,7 @@ public class Servicio {
         PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, idPasajero);
         ps.setInt(2, idVuelo);
-        ps.setDate(3, fechaReserva);
+        ps.setTimestamp(3, new Timestamp(fechaReserva.getTime())); // Corrección: usar Timestamp para datetime
 
         int respuesta = ps.executeUpdate();
         if (respuesta == 1) {
@@ -205,8 +247,9 @@ public class Servicio {
         }
     }
 
-    public Vuelo crearVuelo(String numeroVuelo, String origen, String destino, Date fechaSalida, Date fechaLlegada)
-            throws SQLException{
+    // CORRECCIÓN IMPORTANTE: Método crear vuelo con fechas datetime
+    public Vuelo crearVuelo(String numeroVuelo, String origen, String destino, Timestamp fechaSalida, Timestamp fechaLlegada)
+            throws SQLException {
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
 
         String sql = "INSERT INTO vuelos (numero_vuelo, origen, destino, fecha_salida, fecha_llegada) VALUES(?,?,?,?,?)";
@@ -214,8 +257,8 @@ public class Servicio {
         ps.setString(1, numeroVuelo);
         ps.setString(2, origen);
         ps.setString(3, destino);
-        ps.setDate(4, fechaSalida);
-        ps.setDate(5, fechaLlegada);
+        ps.setTimestamp(4, fechaSalida); // Usar Timestamp para datetime
+        ps.setTimestamp(5, fechaLlegada); // Usar Timestamp para datetime
 
         int respuesta = ps.executeUpdate();
         if (respuesta == 1) {
@@ -228,9 +271,13 @@ public class Servicio {
             rs.close();
             ps.close();
             conn.close();
-//            return new Vuelo(generatedId, numeroVuelo, origen, destino, fechaSalida, fechaLlegada);
-            return null;
-} else {
+            
+            // Convertir Timestamp a LocalDateTime para el objeto Vuelo
+            LocalDateTime fechaSalidaLDT = fechaSalida.toLocalDateTime();
+            LocalDateTime fechaLlegadaLDT = fechaLlegada.toLocalDateTime();
+            
+            return new Vuelo(generatedId, numeroVuelo, origen, destino, fechaSalidaLDT, fechaLlegadaLDT);
+        } else {
             ps.close();
             conn.close();
             throw new SQLException("No se ha podido insertar el nuevo vuelo.");
@@ -260,36 +307,20 @@ public class Servicio {
         return aerolineas;
     }
 
-    public List<Vuelo> buscarVuelos(String origen, String destino) throws SQLException {
-        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
-        String sql = "SELECT * FROM vuelos WHERE origen LIKE ? AND destino LIKE ?";
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setString(1, "%" + origen + "%");
-        ps.setString(2, "%" + destino + "%");
-
-        ResultSet rs = ps.executeQuery();
-        List<Vuelo> vuelos = new ArrayList<>();
-        while (rs.next()) {
-            Integer id = rs.getInt("id");
-            String numeroVuelo = rs.getString("numero_vuelo");
-            String org = rs.getString("origen");
-            String dest = rs.getString("destino");
-            Date fechaSalida = rs.getDate("fecha_salida");
-            Date fechaLlegada = rs.getDate("fecha_llegada");
-            Vuelo vuelo = null; //new Vuelo(id, numeroVuelo, org, dest, fechaSalida, fechaLlegada);
-            vuelos.add(vuelo);
-        }
-        rs.close();
-        ps.close();
-        conn.close();
-        return vuelos;
-    }
-
     public List<Pasajero> buscarPasajeros(String dniBusqueda) throws SQLException {
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
-        String sql = "SELECT * FROM pasajeros WHERE dni LIKE ?";
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setString(1, "%" + dniBusqueda + "%");
+        String sql;
+        PreparedStatement ps;
+        
+        // Si dniBusqueda es "*" o está vacío, buscar todos los pasajeros
+        if (dniBusqueda.equals("*") || dniBusqueda.trim().isEmpty()) {
+            sql = "SELECT * FROM pasajeros";
+            ps = conn.prepareStatement(sql);
+        } else {
+            sql = "SELECT * FROM pasajeros WHERE dni LIKE ?";
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, "%" + dniBusqueda + "%");
+        }
 
         ResultSet rs = ps.executeQuery();
         List<Pasajero> pasajeros = new ArrayList<>();
@@ -343,34 +374,14 @@ public class Servicio {
             Integer id = rs.getInt("id");
             Integer idPas = rs.getInt("id_pasajero");
             Integer idVuelo = rs.getInt("id_vuelo");
-            Date fechaReserva = rs.getDate("fecha_reserva");
-            Reserva reserva = new Reserva(id, idPas, idVuelo, fechaReserva);
+            Timestamp fechaReserva = rs.getTimestamp("fecha_reserva"); // Usar getTimestamp para datetime
+            Reserva reserva = new Reserva(id, idPas, idVuelo, new Date(fechaReserva.getTime()));
             reservas.add(reserva);
         }
         rs.close();
         ps.close();
         conn.close();
         return reservas;
-    }
-
-    public List<Puerta> buscarPuertas() throws SQLException {
-        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
-        String sql = "SELECT * FROM puertas";
-        Statement stmt = conn.createStatement();
-        ResultSet rs = stmt.executeQuery(sql);
-
-        List<Puerta> puertas = new ArrayList<>();
-        while (rs.next()) {
-            Integer id = rs.getInt("id");
-            String numeroPuerta = rs.getString("numero_puerta");
-            String terminal = rs.getString("terminal");
-            Puerta puerta = new Puerta(id, numeroPuerta, terminal);
-            puertas.add(puerta);
-        }
-        rs.close();
-        stmt.close();
-        conn.close();
-        return puertas;
     }
 
     public List<Avion> buscarAvionesPorAerolinea(Integer idAerolinea) throws SQLException {
@@ -525,7 +536,7 @@ public class Servicio {
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setInt(1, idPasajero);
         ps.setInt(2, idVuelo);
-        ps.setDate(3, fechaReserva);
+        ps.setTimestamp(3, new Timestamp(fechaReserva.getTime())); // Usar Timestamp para datetime
         ps.setInt(4, id);
 
         int respuesta = ps.executeUpdate();
@@ -541,8 +552,9 @@ public class Servicio {
         }
     }
 
-    public Vuelo editarVuelo(Integer id, String numeroVuelo, String origen, String destino, Date fechaSalida,
-            Date fechaLlegada) throws SQLException {
+    // CORRECCIÓN IMPORTANTE: Método editar vuelo con fechas datetime
+    public Vuelo editarVuelo(Integer id, String numeroVuelo, String origen, String destino, Timestamp fechaSalida,
+            Timestamp fechaLlegada) throws SQLException {
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
 
         String sql = "UPDATE vuelos SET numero_vuelo = ?, origen = ?, destino = ?, fecha_salida = ?, fecha_llegada = ? WHERE id = ?";
@@ -550,8 +562,8 @@ public class Servicio {
         ps.setString(1, numeroVuelo);
         ps.setString(2, origen);
         ps.setString(3, destino);
-        ps.setDate(4, fechaSalida);
-        ps.setDate(5, fechaLlegada);
+        ps.setTimestamp(4, fechaSalida); // Usar Timestamp para datetime
+        ps.setTimestamp(5, fechaLlegada); // Usar Timestamp para datetime
         ps.setInt(6, id);
 
         int respuesta = ps.executeUpdate();
@@ -559,8 +571,12 @@ public class Servicio {
             System.out.println("Actualización de vuelo correcta.");
             ps.close();
             conn.close();
-            //return new Vuelo(id, numeroVuelo, origen, destino, fechaSalida, fechaLlegada);
-            return null;
+            
+            // Convertir Timestamp a LocalDateTime para el objeto Vuelo
+            LocalDateTime fechaSalidaLDT = fechaSalida.toLocalDateTime();
+            LocalDateTime fechaLlegadaLDT = fechaLlegada.toLocalDateTime();
+            
+            return new Vuelo(id, numeroVuelo, origen, destino, fechaSalidaLDT, fechaLlegadaLDT);
         } else {
             ps.close();
             conn.close();
@@ -670,43 +686,260 @@ public class Servicio {
         }
     }
 
-    public String borrarReserva(Integer id) throws SQLException {
+    public List<Puerta> buscarPuertas() throws SQLException {
+        return buscarPuertasConFiltros("*", "*");
+    }
+
+    public List<Puerta> buscarPuertasConFiltros(String numeroPuertaBusqueda, String terminalBusqueda) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        StringBuilder sql = new StringBuilder("SELECT * FROM puertas WHERE 1=1");
+        List<String> parametros = new ArrayList<>();
+        
+        if (numeroPuertaBusqueda != null && !numeroPuertaBusqueda.equals("*") && !numeroPuertaBusqueda.trim().isEmpty()) {
+            sql.append(" AND numero_puerta LIKE ?");
+            parametros.add("%" + numeroPuertaBusqueda + "%");
+        }
+        
+        if (terminalBusqueda != null && !terminalBusqueda.equals("*") && !terminalBusqueda.trim().isEmpty()) {
+            sql.append(" AND terminal LIKE ?");
+            parametros.add("%" + terminalBusqueda + "%");
+        }
+        
+        PreparedStatement ps = conn.prepareStatement(sql.toString());
+        
+        for (int i = 0; i < parametros.size(); i++) {
+            ps.setString(i + 1, parametros.get(i));
+        }
+        
+        ResultSet rs = ps.executeQuery();
+        List<Puerta> puertas = new ArrayList<>();
+        
+        while (rs.next()) {
+            Integer id = rs.getInt("id");
+            String numeroPuerta = rs.getString("numero_puerta");
+            String terminal = rs.getString("terminal");
+            Puerta puerta = new Puerta(id, numeroPuerta, terminal);
+            puertas.add(puerta);
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return puertas;
+    }
+
+    // Método para verificar si existe una puerta con el mismo número
+    public boolean existePuerta(String numeroPuerta) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        String sql = "SELECT COUNT(*) FROM puertas WHERE numero_puerta = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, numeroPuerta);
+        
+        ResultSet rs = ps.executeQuery();
+        boolean existe = false;
+        if (rs.next()) {
+            existe = rs.getInt(1) > 0;
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return existe;
+    }
+
+    // Método mejorado para buscar vuelos con parámetros opcionales
+    public List<Vuelo> buscarVuelosConFiltros(String origen, String destino, String numeroVuelo) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        StringBuilder sql = new StringBuilder("SELECT * FROM vuelos WHERE 1=1");
+        List<String> parametros = new ArrayList<>();
+        
+        if (origen != null && !origen.equals("*") && !origen.trim().isEmpty()) {
+            sql.append(" AND origen LIKE ?");
+            parametros.add("%" + origen + "%");
+        }
+        
+        if (destino != null && !destino.equals("*") && !destino.trim().isEmpty()) {
+            sql.append(" AND destino LIKE ?");
+            parametros.add("%" + destino + "%");
+        }
+        
+        if (numeroVuelo != null && !numeroVuelo.equals("*") && !numeroVuelo.trim().isEmpty()) {
+            sql.append(" AND numero_vuelo LIKE ?");
+            parametros.add("%" + numeroVuelo + "%");
+        }
+        
+        PreparedStatement ps = conn.prepareStatement(sql.toString());
+        
+        for (int i = 0; i < parametros.size(); i++) {
+            ps.setString(i + 1, parametros.get(i));
+        }
+        
+        ResultSet rs = ps.executeQuery();
+        List<Vuelo> vuelos = new ArrayList<>();
+        
+        while (rs.next()) {
+            Integer id = rs.getInt("id");
+            String numVuelo = rs.getString("numero_vuelo");
+            String org = rs.getString("origen");
+            String dest = rs.getString("destino");
+            Date fechaSalida = rs.getDate("fecha_salida");
+            Date fechaLlegada = rs.getDate("fecha_llegada");
+            
+            // Crear vuelo usando LocalDateTime si es necesario
+            Vuelo vuelo = new Vuelo(id, numVuelo, org, dest, 
+                                fechaSalida != null ? fechaSalida.toLocalDate().atStartOfDay() : null,
+                                fechaLlegada != null ? fechaLlegada.toLocalDate().atStartOfDay() : null);
+            vuelos.add(vuelo);
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return vuelos;
+    }
+
+    // Método para mantener compatibilidad con el método original
+    public List<Vuelo> buscarVuelos(String origen, String destino) throws SQLException {
+        return buscarVuelosConFiltros(origen, destino, "*");
+    }
+
+    // Método para verificar si existe un vuelo con el mismo número
+    public boolean existeVuelo(String numeroVuelo) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        String sql = "SELECT COUNT(*) FROM vuelos WHERE numero_vuelo = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, numeroVuelo);
+        
+        ResultSet rs = ps.executeQuery();
+        boolean existe = false;
+        if (rs.next()) {
+            existe = rs.getInt(1) > 0;
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return existe;
+    }
+
+    // Método para verificar vuelo en edición
+    public boolean existeVueloParaEdicion(String numeroVuelo, Integer idVueloActual) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        String sql = "SELECT COUNT(*) FROM vuelos WHERE numero_vuelo = ? AND id != ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, numeroVuelo);
+        ps.setInt(2, idVueloActual);
+        
+        ResultSet rs = ps.executeQuery();
+        boolean existe = false;
+        if (rs.next()) {
+            existe = rs.getInt(1) > 0;
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return existe;
+    }
+
+    // ACTUALIZAR el método crearVuelo para incluir validación
+    public Vuelo crearVuelo(String numeroVuelo, String origen, String destino, Date fechaSalida, Date fechaLlegada)
+            throws SQLException {
+        // Verificar si ya existe un vuelo con ese número
+        if (existeVuelo(numeroVuelo)) {
+            throw new SQLException("Ya existe un vuelo con el número: " + numeroVuelo);
+        }
+        
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
 
-        String sql = "DELETE FROM reservas WHERE id = ?";
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setInt(1, id);
+        String sql = "INSERT INTO vuelos (numero_vuelo, origen, destino, fecha_salida, fecha_llegada) VALUES(?,?,?,?,?)";
+        PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ps.setString(1, numeroVuelo);
+        ps.setString(2, origen);
+        ps.setString(3, destino);
+        ps.setDate(4, fechaSalida);
+        ps.setDate(5, fechaLlegada);
 
         int respuesta = ps.executeUpdate();
         if (respuesta == 1) {
-            System.out.println("Eliminación de reserva correcta.");
+            System.out.println("Inserción de vuelo correcta.");
+            ResultSet rs = ps.getGeneratedKeys();
+            Integer generatedId = null;
+            if (rs.next()) {
+                generatedId = rs.getInt(1);
+            }
+            rs.close();
             ps.close();
             conn.close();
-            return "Reserva eliminada correctamente.";
+            
+            return new Vuelo(generatedId, numeroVuelo, origen, destino, 
+                            fechaSalida != null ? fechaSalida.toLocalDate().atStartOfDay() : null,
+                            fechaLlegada != null ? fechaLlegada.toLocalDate().atStartOfDay() : null);
         } else {
             ps.close();
             conn.close();
-            throw new SQLException("No se ha podido eliminar la reserva.");
+            throw new SQLException("No se ha podido insertar el nuevo vuelo.");
         }
     }
 
-    public String borrarVuelo(Integer id) throws SQLException {
+    // ACTUALIZAR el método editarVuelo para incluir validación
+    public Vuelo editarVuelo(Integer id, String numeroVuelo, String origen, String destino, Date fechaSalida,
+            Date fechaLlegada) throws SQLException {
+        // Verificar si ya existe otro vuelo con ese número (excluyendo el actual)
+        if (existeVueloParaEdicion(numeroVuelo, id)) {
+            throw new SQLException("Ya existe otro vuelo con el número: " + numeroVuelo);
+        }
+        
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
 
-        String sql = "DELETE FROM vuelos WHERE id = ?";
+        String sql = "UPDATE vuelos SET numero_vuelo = ?, origen = ?, destino = ?, fecha_salida = ?, fecha_llegada = ? WHERE id = ?";
         PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setInt(1, id);
+        ps.setString(1, numeroVuelo);
+        ps.setString(2, origen);
+        ps.setString(3, destino);
+        ps.setDate(4, fechaSalida);
+        ps.setDate(5, fechaLlegada);
+        ps.setInt(6, id);
 
         int respuesta = ps.executeUpdate();
         if (respuesta == 1) {
-            System.out.println("Eliminación de vuelo correcta.");
+            System.out.println("Actualización de vuelo correcta.");
             ps.close();
             conn.close();
-            return "Vuelo eliminado correctamente.";
+            
+            return new Vuelo(id, numeroVuelo, origen, destino,
+                            fechaSalida != null ? fechaSalida.toLocalDate().atStartOfDay() : null,
+                            fechaLlegada != null ? fechaLlegada.toLocalDate().atStartOfDay() : null);
         } else {
             ps.close();
             conn.close();
-            throw new SQLException("No se ha podido eliminar el vuelo.");
+            throw new SQLException("No se ha podido actualizar el vuelo.");
         }
+    }
+
+    // Método para verificar si existe una puerta con el mismo número (excluyendo una puerta específica para edición)
+    public boolean existePuertaParaEdicion(String numeroPuerta, Integer idPuertaActual) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        String sql = "SELECT COUNT(*) FROM puertas WHERE numero_puerta = ? AND id != ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, numeroPuerta);
+        ps.setInt(2, idPuertaActual);
+        
+        ResultSet rs = ps.executeQuery();
+        boolean existe = false;
+        if (rs.next()) {
+            existe = rs.getInt(1) > 0;
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return existe;
     }
 }

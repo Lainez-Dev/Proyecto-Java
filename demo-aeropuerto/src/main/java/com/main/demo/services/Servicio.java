@@ -9,9 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
@@ -108,8 +111,7 @@ public class Servicio {
         }
     }
 
-    public Avion crearAvion(String modelo, Integer capacidadAsientos, Integer idAerolinea, Integer idVuelo)
-            throws SQLException {
+    public Avion crearAvion(String modelo, Integer capacidadAsientos, Integer idAerolinea, Integer idVuelo) throws SQLException {
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
 
         String sql = "INSERT INTO aviones (modelo, capacidad_asientos, id_aerolinea, id_vuelo) VALUES(?,?,?,?)";
@@ -117,7 +119,11 @@ public class Servicio {
         ps.setString(1, modelo);
         ps.setInt(2, capacidadAsientos);
         ps.setInt(3, idAerolinea);
-        ps.setInt(4, idVuelo);
+        if (idVuelo != null) {
+            ps.setInt(4, idVuelo);
+        } else {
+            ps.setNull(4, Types.INTEGER);
+        }
 
         int respuesta = ps.executeUpdate();
         if (respuesta == 1) {
@@ -568,6 +574,76 @@ public class Servicio {
         return aviones;
     }
 
+    public List<Avion> buscarTodosLosAviones() throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        String sql = "SELECT * FROM aviones ORDER BY id";
+        PreparedStatement ps = conn.prepareStatement(sql);
+
+        ResultSet rs = ps.executeQuery();
+        List<Avion> aviones = new ArrayList<>();
+        while (rs.next()) {
+            Integer id = rs.getInt("id");
+            String modelo = rs.getString("modelo");
+            Integer capacidadAsientos = rs.getInt("capacidad_asientos");
+            Integer idAerolinea = rs.getInt("id_aerolinea");
+            Integer idVuelo = rs.getObject("id_vuelo") != null ? rs.getInt("id_vuelo") : null;
+            Avion avion = new Avion(id, modelo, capacidadAsientos, idAerolinea, idVuelo);
+            aviones.add(avion);
+        }
+        rs.close();
+        ps.close();
+        conn.close();
+        return aviones;
+    }
+
+    public List<Avion> buscarAvionesConFiltros(String modelo, String idAerolinea, String capacidadMinima) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        StringBuilder sql = new StringBuilder("SELECT * FROM aviones WHERE 1=1");
+        List<Object> parametros = new ArrayList<>();
+        
+        if (modelo != null && !modelo.equals("*") && !modelo.trim().isEmpty()) {
+            sql.append(" AND modelo LIKE ?");
+            parametros.add("%" + modelo + "%");
+        }
+        
+        if (idAerolinea != null && !idAerolinea.equals("*") && !idAerolinea.trim().isEmpty()) {
+            sql.append(" AND id_aerolinea = ?");
+            parametros.add(Integer.parseInt(idAerolinea));
+        }
+        
+        if (capacidadMinima != null && !capacidadMinima.equals("0") && !capacidadMinima.trim().isEmpty()) {
+            sql.append(" AND capacidad_asientos >= ?");
+            parametros.add(Integer.parseInt(capacidadMinima));
+        }
+        
+        sql.append(" ORDER BY id");
+        
+        PreparedStatement ps = conn.prepareStatement(sql.toString());
+        
+        for (int i = 0; i < parametros.size(); i++) {
+            ps.setObject(i + 1, parametros.get(i));
+        }
+        
+        ResultSet rs = ps.executeQuery();
+        List<Avion> aviones = new ArrayList<>();
+        
+        while (rs.next()) {
+            Integer id = rs.getInt("id");
+            String mod = rs.getString("modelo");
+            Integer capacidadAsientos = rs.getInt("capacidad_asientos");
+            Integer idAero = rs.getInt("id_aerolinea");
+            Integer idVuelo = rs.getObject("id_vuelo") != null ? rs.getInt("id_vuelo") : null;
+            Avion avion = new Avion(id, mod, capacidadAsientos, idAero, idVuelo);
+            aviones.add(avion);
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return aviones;
+    }
+
     // MÉTODOS DE EDICIÓN
 
     public Aerolinea editarAerolinea(Integer id, String nombre, String paisOrigen) throws SQLException {
@@ -597,16 +673,19 @@ public class Servicio {
         }
     }
 
-    public Avion editarAvion(Integer id, String modelo, Integer capacidadAsientos, Integer idAerolinea, Integer idVuelo)
-            throws SQLException {
+    public Avion editarAvion(Integer id, String modelo, Integer capacidadAsientos, Integer idAerolinea, Integer idVuelo) throws SQLException {
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
 
-        String sql = "UPDATE aviones SET modelo = ?, capacidad_asientos = ?, id_aerolinea = ?, id_vuelo = ? WHERE id = ?";
+        String sql = "UPDATE aviones SET modelo=?, capacidad_asientos=?, id_aerolinea=?, id_vuelo=? WHERE id=?";
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setString(1, modelo);
         ps.setInt(2, capacidadAsientos);
         ps.setInt(3, idAerolinea);
-        ps.setInt(4, idVuelo);
+        if (idVuelo != null) {
+            ps.setInt(4, idVuelo);
+        } else {
+            ps.setNull(4, Types.INTEGER);
+        }
         ps.setInt(5, id);
 
         int respuesta = ps.executeUpdate();
@@ -620,6 +699,116 @@ public class Servicio {
             conn.close();
             throw new SQLException("No se ha podido actualizar el avión.");
         }
+    }
+
+    public boolean eliminarAvion(Integer id) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+
+        String sql = "DELETE FROM aviones WHERE id=?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, id);
+
+        int respuesta = ps.executeUpdate();
+        ps.close();
+        conn.close();
+        
+        if (respuesta == 1) {
+            System.out.println("Eliminación de avión correcta.");
+            return true;
+        } else {
+            throw new SQLException("No se ha podido eliminar el avión.");
+        }
+    }
+
+    public Avion buscarAvionPorId(Integer id) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        String sql = "SELECT * FROM aviones WHERE id = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, id);
+        
+        ResultSet rs = ps.executeQuery();
+        Avion avion = null;
+        
+        if (rs.next()) {
+            String modelo = rs.getString("modelo");
+            Integer capacidadAsientos = rs.getInt("capacidad_asientos");
+            Integer idAerolinea = rs.getInt("id_aerolinea");
+            Integer idVuelo = rs.getObject("id_vuelo") != null ? rs.getInt("id_vuelo") : null;
+            avion = new Avion(id, modelo, capacidadAsientos, idAerolinea, idVuelo);
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return avion;
+    }
+
+    public boolean avionTieneVueloAsignado(Integer idAvion) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        String sql = "SELECT COUNT(*) FROM aviones WHERE id = ? AND id_vuelo IS NOT NULL";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, idAvion);
+        
+        ResultSet rs = ps.executeQuery();
+        boolean tieneVuelo = false;
+        if (rs.next()) {
+            tieneVuelo = rs.getInt(1) > 0;
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return tieneVuelo;
+    }
+    
+    public Map<String, Object> obtenerEstadisticasAviones() throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        Map<String, Object> estadisticas = new HashMap<>();
+        
+        // Total de aviones
+        String sqlTotal = "SELECT COUNT(*) FROM aviones";
+        PreparedStatement psTotal = conn.prepareStatement(sqlTotal);
+        ResultSet rsTotal = psTotal.executeQuery();
+        if (rsTotal.next()) {
+            estadisticas.put("totalAviones", rsTotal.getInt(1));
+        }
+        rsTotal.close();
+        psTotal.close();
+        
+        // Aviones con vuelo asignado (en vuelo)
+        String sqlEnVuelo = "SELECT COUNT(*) FROM aviones WHERE id_vuelo IS NOT NULL";
+        PreparedStatement psEnVuelo = conn.prepareStatement(sqlEnVuelo);
+        ResultSet rsEnVuelo = psEnVuelo.executeQuery();
+        if (rsEnVuelo.next()) {
+            estadisticas.put("avionesEnVuelo", rsEnVuelo.getInt(1));
+        }
+        rsEnVuelo.close();
+        psEnVuelo.close();
+        
+        // Aviones disponibles (sin vuelo asignado)
+        String sqlDisponibles = "SELECT COUNT(*) FROM aviones WHERE id_vuelo IS NULL";
+        PreparedStatement psDisponibles = conn.prepareStatement(sqlDisponibles);
+        ResultSet rsDisponibles = psDisponibles.executeQuery();
+        if (rsDisponibles.next()) {
+            estadisticas.put("avionesDisponibles", rsDisponibles.getInt(1));
+        }
+        rsDisponibles.close();
+        psDisponibles.close();
+        
+        // Capacidad total
+        String sqlCapacidad = "SELECT SUM(capacidad_asientos) FROM aviones";
+        PreparedStatement psCapacidad = conn.prepareStatement(sqlCapacidad);
+        ResultSet rsCapacidad = psCapacidad.executeQuery();
+        if (rsCapacidad.next()) {
+            estadisticas.put("capacidadTotal", rsCapacidad.getInt(1));
+        }
+        rsCapacidad.close();
+        psCapacidad.close();
+        
+        conn.close();
+        return estadisticas;
     }
 
     public Equipaje editarEquipaje(Integer id, Integer idPasajero, String descripcion, BigDecimal peso)

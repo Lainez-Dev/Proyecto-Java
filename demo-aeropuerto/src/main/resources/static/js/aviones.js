@@ -1,13 +1,17 @@
 // Variables globales
+let aviones = [];
 let aerolineasDisponibles = [];
 let vuelosDisponibles = [];
 
 function buscarAviones() {
-    let modelo = document.getElementById('modelo').value || '*';
+    let modelo = document.getElementById('modeloFiltro').value || '*';
     let aerolineaId = document.getElementById('aerolineaFiltro').value || '*';
     let capacidadMinima = document.getElementById('capacidadMinima').value || '0';
     
-    fetch(`http://localhost:9999/consulta_aviones?modelo=${modelo}&idAerolinea=${aerolineaId}&capacidadMinima=${capacidadMinima}`, {
+    // Construir parámetros de búsqueda
+    let parametros = `modelo=${modelo}&idAerolinea=${aerolineaId}&capacidadMinima=${capacidadMinima}`;
+    
+    fetch(`http://localhost:9999/consulta_aviones?${parametros}`, {
         headers: new Headers({
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
@@ -15,8 +19,8 @@ function buscarAviones() {
     })
     .then(res => res.text())
     .then(json => {
-        const aviones = JSON.parse(json);
-        mostrarAviones(aviones);
+        const avionesData = JSON.parse(json);
+        mostrarAviones(avionesData);
     })
     .catch(e => {
         console.log('Error buscando aviones: ' + e.message);
@@ -33,9 +37,10 @@ function cargarAviones() {
     })
     .then(res => res.text())
     .then(json => {
-        const aviones = JSON.parse(json);
-        mostrarAviones(aviones);
-        actualizarEstadisticas(aviones);
+        const avionesData = JSON.parse(json);
+        aviones = avionesData;
+        mostrarAviones(avionesData);
+        actualizarEstadisticas(avionesData);
     })
     .catch(e => {
         console.log('Error cargando aviones: ' + e.message);
@@ -43,10 +48,19 @@ function cargarAviones() {
     });
 }
 
-function mostrarAviones(aviones) {
+function mostrarAviones(avionesData) {
     let tabla = "";
-    if (aviones && aviones.length > 0) {
-        aviones.forEach(avion => {
+    if (avionesData && avionesData.length > 0) {
+        avionesData.forEach(avion => {
+            // Buscar información de la aerolínea
+            const aerolinea = aerolineasDisponibles.find(a => a.id == avion.idAerolinea);
+            const nombreAerolinea = aerolinea ? aerolinea.nombre : `ID: ${avion.idAerolinea}`;
+            const iniciales = aerolinea ? aerolinea.nombre.split(' ').map(p => p.charAt(0)).slice(0, 2).join('') : 'NA';
+            
+            // Buscar información del vuelo
+            const vuelo = vuelosDisponibles.find(v => v.id == avion.idVuelo);
+            const vueloInfo = vuelo ? `${vuelo.numeroVuelo} (${vuelo.origen} → ${vuelo.destino})` : null;
+            
             // Calcular estado del avión
             const estado = calcularEstadoAvion(avion);
             const estadoTexto = {
@@ -55,12 +69,6 @@ function mostrarAviones(aviones) {
                 'mantenimiento': 'Mantenimiento',
                 'fuera-servicio': 'Fuera de Servicio'
             };
-            
-            // Obtener nombre de aerolínea
-            const nombreAerolinea = obtenerNombreAerolinea(avion.idAerolinea);
-            
-            // Obtener información de vuelo
-            const infoVuelo = obtenerInfoVuelo(avion.idVuelo);
             
             // Determinar tipo de avión para iconos
             const tipoAvion = determinarTipoAvion(avion.modelo);
@@ -76,8 +84,19 @@ function mostrarAviones(aviones) {
             tabla += "<i class='fas fa-users'></i>" + avion.capacidadAsientos + " asientos";
             tabla += "</span>";
             tabla += "</td>";
-            tabla += "<td>" + nombreAerolinea + "</td>";
-            tabla += "<td>" + (infoVuelo || '<span style="color: #999;">Sin asignar</span>') + "</td>";
+            tabla += "<td>";
+            tabla += "<div class='airline-info'>";
+            tabla += "<div class='airline-logo-mini'>" + iniciales + "</div>";
+            tabla += "<span>" + nombreAerolinea + "</span>";
+            tabla += "</div>";
+            tabla += "</td>";
+            tabla += "<td>";
+            if (vueloInfo) {
+                tabla += "<span class='flight-assignment'><i class='fas fa-plane'></i>" + vueloInfo + "</span>";
+            } else {
+                tabla += "<span style='color: #999;'>Sin asignar</span>";
+            }
+            tabla += "</td>";
             tabla += "<td><span class='aircraft-status status-" + estado + "'>" + estadoTexto[estado] + "</span></td>";
             tabla += "<td class='table-actions' onclick='event.stopPropagation()'>";
             tabla += "<button class='btn btn-warning btn-sm' onclick=\"llamarModificarAvion('" + avion.id + "', '" + avion.modelo + "', '" + avion.capacidadAsientos + "', '" + avion.idAerolinea + "', '" + (avion.idVuelo || '') + "')\"><i class='fas fa-edit'></i> Modificar</button>";
@@ -111,34 +130,10 @@ function eliminarAvion(id) {
     }
 }
 
-// Función para verificar si existe un avión con el mismo modelo y aerolínea
-async function verificarAvionExistente(modelo, idAerolinea) {
-    try {
-        const response = await fetch(`http://localhost:9999/verificar_avion?modelo=${modelo}&idAerolinea=${idAerolinea}`);
-        const data = await response.json();
-        return data.existe;
-    } catch (e) {
-        console.log('Error verificando avión: ' + e.message);
-        return false;
-    }
-}
-
-// Función para verificar avión en edición
-async function verificarAvionEdicion(modelo, idAerolinea, id) {
-    try {
-        const response = await fetch(`http://localhost:9999/verificar_avion_edicion?modelo=${modelo}&idAerolinea=${idAerolinea}&id=${id}`);
-        const data = await response.json();
-        return data.existe;
-    } catch (e) {
-        console.log('Error verificando avión para edición: ' + e.message);
-        return false;
-    }
-}
-
 async function edicionAvion() {
     let id = document.getElementById('idAvion').value;
-    let modelo = document.getElementById('modeloEdicion').value.trim();
-    let capacidadAsientos = document.getElementById('capacidadAsientosEdicion').value;
+    let modelo = document.getElementById('modeloEdicion').value;
+    let capacidadAsientos = document.getElementById('capacidadEdicion').value;
     let idAerolinea = document.getElementById('aerolineaEdicion').value;
     let idVuelo = document.getElementById('vueloEdicion').value || null;
 
@@ -147,30 +142,18 @@ async function edicionAvion() {
         return;
     }
 
+    // Validar capacidad
     if (capacidadAsientos < 1 || capacidadAsientos > 1000) {
         mostrarError('La capacidad debe estar entre 1 y 1000 asientos');
         return;
     }
 
-    // Verificar si ya existe otro avión con el mismo modelo y aerolínea
-    const existe = await verificarAvionEdicion(modelo, idAerolinea, id);
-    if (existe) {
-        mostrarError(`Ya existe otro avión ${modelo} en esta aerolínea`);
-        return;
-    }
-
-    const params = new URLSearchParams({
-        id: id,
-        modelo: modelo,
-        capacidadAsientos: capacidadAsientos,
-        idAerolinea: idAerolinea
-    });
-
+    let parametros = `id=${id}&modelo=${encodeURIComponent(modelo)}&capacidadAsientos=${capacidadAsientos}&idAerolinea=${idAerolinea}`;
     if (idVuelo) {
-        params.append('idVuelo', idVuelo);
+        parametros += `&idVuelo=${idVuelo}`;
     }
 
-    fetch(`http://localhost:9999/editar_avion?${params.toString()}`, {
+    fetch(`http://localhost:9999/editar_avion?${parametros}`, {
         method: 'PUT'
     })
     .then(res => {
@@ -196,11 +179,11 @@ function llamarDialogoAvion() {
     if (dialogoAvion) {
         // Limpiar campos
         document.getElementById('modeloCreacion').value = '';
-        document.getElementById('capacidadAsientosCreacion').value = '';
+        document.getElementById('capacidadCreacion').value = '';
         document.getElementById('aerolineaCreacion').value = '';
         document.getElementById('vueloCreacion').value = '';
         
-        // Cargar opciones de aerolíneas y vuelos
+        // Cargar opciones
         cargarOpcionesAerolineas('aerolineaCreacion');
         cargarOpcionesVuelos('vueloCreacion');
         
@@ -214,9 +197,11 @@ function llamarModificarAvion(id, modelo, capacidadAsientos, idAerolinea, idVuel
         // Llenar campos con datos existentes
         document.getElementById('idAvion').value = id;
         document.getElementById('modeloEdicion').value = modelo;
-        document.getElementById('capacidadAsientosEdicion').value = capacidadAsientos;
+        document.getElementById('capacidadEdicion').value = capacidadAsientos;
+        document.getElementById('aerolineaEdicion').value = idAerolinea;
+        document.getElementById('vueloEdicion').value = idVuelo || '';
         
-        // Cargar opciones y seleccionar las actuales
+        // Cargar opciones
         cargarOpcionesAerolineas('aerolineaEdicion', idAerolinea);
         cargarOpcionesVuelos('vueloEdicion', idVuelo);
         
@@ -225,8 +210,8 @@ function llamarModificarAvion(id, modelo, capacidadAsientos, idAerolinea, idVuel
 }
 
 async function crearAvion() {
-    let modelo = document.getElementById('modeloCreacion').value.trim();
-    let capacidadAsientos = document.getElementById('capacidadAsientosCreacion').value;
+    let modelo = document.getElementById('modeloCreacion').value;
+    let capacidadAsientos = document.getElementById('capacidadCreacion').value;
     let idAerolinea = document.getElementById('aerolineaCreacion').value;
     let idVuelo = document.getElementById('vueloCreacion').value || null;
     
@@ -235,29 +220,18 @@ async function crearAvion() {
         return;
     }
 
+    // Validar capacidad
     if (capacidadAsientos < 1 || capacidadAsientos > 1000) {
         mostrarError('La capacidad debe estar entre 1 y 1000 asientos');
         return;
     }
 
-    // Verificar si ya existe un avión con el mismo modelo y aerolínea
-    const existe = await verificarAvionExistente(modelo, idAerolinea);
-    if (existe) {
-        mostrarError(`Ya existe un avión ${modelo} en esta aerolínea`);
-        return;
-    }
-
-    const params = new URLSearchParams({
-        modelo: modelo,
-        capacidadAsientos: capacidadAsientos,
-        idAerolinea: idAerolinea
-    });
-
+    let parametros = `modelo=${encodeURIComponent(modelo)}&capacidadAsientos=${capacidadAsientos}&idAerolinea=${idAerolinea}`;
     if (idVuelo) {
-        params.append('idVuelo', idVuelo);
+        parametros += `&idVuelo=${idVuelo}`;
     }
     
-    fetch(`http://localhost:9999/crear_avion?${params.toString()}`)
+    fetch(`http://localhost:9999/crear_avion?${parametros}`)
     .then(res => {
         if (res.ok) {
             return res.text();
@@ -288,43 +262,41 @@ function cerrarDialogo() {
     }
 }
 
-// Función para cargar aerolíneas para filtros
+// Función para cargar aerolíneas disponibles
 function cargarAerolineasParaFiltros() {
-    fetch('http://localhost:9999/consulta_aerolineas?nombre=*')
+    fetch('http://localhost:9999/consulta_aerolineas?nombre=*&paisOrigen=*')
     .then(res => res.text())
     .then(json => {
-        const aerolineas = JSON.parse(json);
-        aerolineasDisponibles = aerolineas;
-        
-        const selectFiltro = document.getElementById('aerolineaFiltro');
-        if (selectFiltro) {
-            let opciones = '<option value="">Todas las aerolíneas</option>';
-            aerolineas.forEach(aerolinea => {
-                opciones += `<option value="${aerolinea.id}">${aerolinea.nombre}</option>`;
-            });
-            selectFiltro.innerHTML = opciones;
-        }
+        aerolineasDisponibles = JSON.parse(json);
+        actualizarFiltrosAerolineas();
     })
     .catch(e => {
-        console.log('Error cargando aerolíneas para filtros: ' + e.message);
+        console.log('Error cargando aerolíneas: ' + e.message);
     });
 }
 
-// Función para cargar vuelos para asignación
 function cargarVuelosParaAsignacion() {
     fetch('http://localhost:9999/consulta_vuelos?origen=*&destino=*')
     .then(res => res.text())
     .then(json => {
-        const vuelos = JSON.parse(json);
-        vuelosDisponibles = vuelos;
+        vuelosDisponibles = JSON.parse(json);
     })
     .catch(e => {
         console.log('Error cargando vuelos: ' + e.message);
-        vuelosDisponibles = [];
     });
 }
 
-// Función para cargar opciones de aerolíneas en selects
+function actualizarFiltrosAerolineas() {
+    const selectFiltro = document.getElementById('aerolineaFiltro');
+    if (selectFiltro && aerolineasDisponibles.length > 0) {
+        let opciones = '<option value="">Todas las aerolíneas</option>';
+        aerolineasDisponibles.forEach(aerolinea => {
+            opciones += `<option value="${aerolinea.id}">${aerolinea.nombre}</option>`;
+        });
+        selectFiltro.innerHTML = opciones;
+    }
+}
+
 function cargarOpcionesAerolineas(selectId, selectedId = null) {
     const select = document.getElementById(selectId);
     if (select && aerolineasDisponibles.length > 0) {
@@ -337,104 +309,168 @@ function cargarOpcionesAerolineas(selectId, selectedId = null) {
     }
 }
 
-// Función para cargar opciones de vuelos en selects
 function cargarOpcionesVuelos(selectId, selectedId = null) {
     const select = document.getElementById(selectId);
-    if (select) {
-        let opciones = '<option value="">Sin vuelo asignado</option>';
-        if (vuelosDisponibles.length > 0) {
-            vuelosDisponibles.forEach(vuelo => {
-                const selected = selectedId == vuelo.id ? 'selected' : '';
-                opciones += `<option value="${vuelo.id}" ${selected}>${vuelo.numeroVuelo} (${vuelo.origen} → ${vuelo.destino})</option>`;
-            });
-        }
+    if (select && vuelosDisponibles.length > 0) {
+        let opciones = '<option value="">Sin asignar vuelo</option>';
+        vuelosDisponibles.forEach(vuelo => {
+            const selected = selectedId == vuelo.id ? 'selected' : '';
+            opciones += `<option value="${vuelo.id}" ${selected}>${vuelo.numeroVuelo} - ${vuelo.origen} → ${vuelo.destino}</option>`;
+        });
         select.innerHTML = opciones;
     }
 }
 
-function actualizarEstadisticas(aviones) {
-    const totalAviones = aviones.length;
+function actualizarEstadisticas(avionesData) {
+    const totalAviones = avionesData.length;
     
-    // Calcular aerolíneas únicas con aviones
-    const aerolineasConFlota = new Set();
+    // Contar aviones por estado
+    let disponibles = 0;
+    let enVuelo = 0;
     let capacidadTotal = 0;
-    let avionesEnServicio = 0;
     
-    aviones.forEach(avion => {
-        aerolineasConFlota.add(avion.idAerolinea);
-        capacidadTotal += parseInt(avion.capacidadAsientos);
-        
+    avionesData.forEach(avion => {
         const estado = calcularEstadoAvion(avion);
-        if (estado === 'en-vuelo') {
-            avionesEnServicio++;
-        }
+        if (estado === 'disponible') disponibles++;
+        if (estado === 'en-vuelo') enVuelo++;
+        capacidadTotal += parseInt(avion.capacidadAsientos);
     });
     
     document.getElementById('totalAviones').textContent = totalAviones;
-    document.getElementById('aerolineasConAviones').textContent = aerolineasConFlota.size;
+    document.getElementById('avionesDisponibles').textContent = disponibles;
+    document.getElementById('avionesEnVuelo').textContent = enVuelo;
     document.getElementById('capacidadTotal').textContent = capacidadTotal.toLocaleString();
-    document.getElementById('avionesEnVuelo').textContent = avionesEnServicio;
 }
 
 // Función para calcular el estado de un avión
 function calcularEstadoAvion(avion) {
-    if (!avion.idVuelo) {
-        return 'disponible';
+    if (avion.idVuelo) {
+        // Si tiene vuelo asignado, verificar si está en vuelo
+        const vuelo = vuelosDisponibles.find(v => v.id == avion.idVuelo);
+        if (vuelo) {
+            const ahora = new Date();
+            const fechaSalida = new Date(vuelo.fechaSalida);
+            const fechaLlegada = new Date(vuelo.fechaLlegada);
+            
+            if (ahora >= fechaSalida && ahora <= fechaLlegada) {
+                return 'en-vuelo';
+            }
+        }
     }
     
-    // Simular estados basados en si tiene vuelo asignado
-    // En producción, esto se basaría en datos reales de vuelo
-    const estados = ['en-vuelo', 'disponible'];
-    return estados[Math.floor(Math.random() * estados.length)];
+    // Simular otros estados basado en probabilidades
+    const random = Math.random();
+    if (random < 0.05) return 'mantenimiento';
+    if (random < 0.08) return 'fuera-servicio';
+    return 'disponible';
 }
 
-// Función para obtener nombre de aerolínea
-function obtenerNombreAerolinea(idAerolinea) {
-    const aerolinea = aerolineasDisponibles.find(a => a.id == idAerolinea);
-    return aerolinea ? aerolinea.nombre : 'Aerolínea desconocida';
-}
-
-// Función para obtener información de vuelo
-function obtenerInfoVuelo(idVuelo) {
-    if (!idVuelo) return null;
-    
-    const vuelo = vuelosDisponibles.find(v => v.id == idVuelo);
-    return vuelo ? `${vuelo.numeroVuelo} (${vuelo.origen} → ${vuelo.destino})` : `Vuelo ID: ${idVuelo}`;
-}
-
-// Función para determinar tipo de avión
+// Función para determinar el tipo de avión
 function determinarTipoAvion(modelo) {
     const modeloLower = modelo.toLowerCase();
-    if (modeloLower.includes('boeing')) {
-        return 'boeing';
-    } else if (modeloLower.includes('airbus')) {
-        return 'airbus';
-    } else {
-        return 'other';
+    
+    if (modeloLower.includes('boeing') || modeloLower.includes('airbus') || modeloLower.includes('737') || modeloLower.includes('a320') || modeloLower.includes('a380')) {
+        return 'commercial';
+    } else if (modeloLower.includes('cessna') || modeloLower.includes('piper') || modeloLower.includes('beech')) {
+        return 'private';
+    } else if (modeloLower.includes('cargo') || modeloLower.includes('freight')) {
+        return 'cargo';
+    } else if (modeloLower.includes('helicopter') || modeloLower.includes('helicoptero')) {
+        return 'fighter';
     }
+    
+    return 'commercial'; // Por defecto
 }
 
 // Función para mostrar detalles del avión
 function mostrarDetallesAvion(id) {
-    // Esta función mostraría un panel lateral con detalles completos
-    console.log('Mostrar detalles del avión ID:', id);
-    // Implementación del panel de detalles...
+    const avion = aviones.find(a => a.id == id);
+    if (!avion) return;
+    
+    const aerolinea = aerolineasDisponibles.find(a => a.id == avion.idAerolinea);
+    const vuelo = vuelosDisponibles.find(v => v.id == avion.idVuelo);
+    const estado = calcularEstadoAvion(avion);
+    
+    const detailsContent = document.getElementById('detailsContent');
+    detailsContent.innerHTML = `
+        <div class="aircraft-model">${avion.modelo}</div>
+        
+        <div class="aircraft-specs">
+            <div class="spec-item">
+                <span class="spec-label">ID del Avión:</span>
+                <span class="spec-value">#${avion.id}</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Capacidad:</span>
+                <span class="spec-value">${avion.capacidadAsientos} asientos</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Aerolínea:</span>
+                <span class="spec-value">${aerolinea ? aerolinea.nombre : 'N/A'}</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Estado:</span>
+                <span class="spec-value aircraft-status status-${estado}">${estado.replace('-', ' ').toUpperCase()}</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Vuelo Asignado:</span>
+                <span class="spec-value">${vuelo ? `${vuelo.numeroVuelo} (${vuelo.origen} → ${vuelo.destino})` : 'Sin asignar'}</span>
+            </div>
+        </div>
+        
+        <div class="aircraft-history">
+            <h4>Información Adicional</h4>
+            <div class="history-item">
+                <strong>Tipo de Aeronave:</strong> ${determinarTipoAvion(avion.modelo) === 'commercial' ? 'Comercial' : 'Otros'}
+            </div>
+            <div class="history-item">
+                <strong>Última Actualización:</strong> ${new Date().toLocaleDateString('es-ES')}
+            </div>
+            <div class="history-item">
+                <strong>Disponibilidad:</strong> ${estado === 'disponible' ? 'Disponible para asignación' : 'No disponible'}
+            </div>
+        </div>
+    `;
+    
+    const aircraftDetails = document.getElementById('aircraftDetails');
+    aircraftDetails.classList.add('show');
 }
 
-// Función para cerrar panel de detalles
 function cerrarDetalles() {
-    const panel = document.getElementById('aircraftDetails');
-    if (panel) {
-        panel.classList.remove('show');
-    }
+    const aircraftDetails = document.getElementById('aircraftDetails');
+    aircraftDetails.classList.remove('show');
 }
 
-// Función para exportar datos de aviones
+// Función para exportar aviones
 function exportarAviones() {
-    // Simular exportación
-    mostrarExito('Funcionalidad de exportación en desarrollo');
+    if (aviones.length === 0) {
+        mostrarError('No hay datos para exportar');
+        return;
+    }
+    
+    let csv = 'ID,Modelo,Capacidad,Aerolínea,Vuelo Asignado,Estado\n';
+    aviones.forEach(avion => {
+        const aerolinea = aerolineasDisponibles.find(a => a.id == avion.idAerolinea);
+        const vuelo = vuelosDisponibles.find(v => v.id == avion.idVuelo);
+        const nombreAerolinea = aerolinea ? aerolinea.nombre : `ID: ${avion.idAerolinea}`;
+        const vueloInfo = vuelo ? `${vuelo.numeroVuelo} (${vuelo.origen} → ${vuelo.destino})` : 'Sin asignar';
+        const estado = calcularEstadoAvion(avion);
+        
+        csv += `${avion.id},"${avion.modelo}","${avion.capacidadAsientos} asientos","${nombreAerolinea}","${vueloInfo}","${estado}"\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'aviones.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+    
+    mostrarExito('Datos exportados correctamente');
 }
 
+// Funciones auxiliares
 function mostrarExito(mensaje) {
     const alertContainer = document.getElementById('alertContainer');
     alertContainer.innerHTML = `<div class="alert alert-success show">${mensaje}</div>`;
@@ -472,21 +508,16 @@ document.getElementById('dialogoAvionEdicion')?.addEventListener('click', functi
     }
 });
 
-// Validación en tiempo real para capacidad
-document.getElementById('capacidadAsientosCreacion')?.addEventListener('input', function() {
-    const capacidad = parseInt(this.value);
-    if (capacidad < 1 || capacidad > 1000) {
-        this.style.borderColor = '#e74c3c';
-    } else {
-        this.style.borderColor = '#2ecc71';
-    }
+// Event listeners para filtros
+document.getElementById('modeloFiltro')?.addEventListener('input', function() {
+    // Buscar automáticamente después de un pequeño delay
+    setTimeout(buscarAviones, 300);
 });
 
-document.getElementById('capacidadAsientosEdicion')?.addEventListener('input', function() {
-    const capacidad = parseInt(this.value);
-    if (capacidad < 1 || capacidad > 1000) {
-        this.style.borderColor = '#e74c3c';
-    } else {
-        this.style.borderColor = '#2ecc71';
-    }
+document.getElementById('aerolineaFiltro')?.addEventListener('change', function() {
+    buscarAviones();
+});
+
+document.getElementById('capacidadMinima')?.addEventListener('input', function() {
+    setTimeout(buscarAviones, 300);
 });

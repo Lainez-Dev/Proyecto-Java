@@ -36,7 +36,7 @@
     <main>
         <div class="page-header">
             <h1><i class="fas fa-fighter-jet"></i>Gestión de Aviones</h1>
-            <p>Administra la flota de aeronaves registradas en el sistema aeroportuario</p>
+            <p>Administra la flota de aeronaves del sistema aeroportuario</p>
         </div>
 
         <!-- Alert messages -->
@@ -52,64 +52,99 @@
                 
                 <!-- Modal para crear avión -->
                 <dialog id="dialogoAvion">
-                    <h3>Modelo del Avión</h3>
-                    <input type="text" id="modeloCreacion" placeholder="Ej: Boeing 737, Airbus A320">
-                    <h3>Capacidad de Asientos</h3>
-                    <input type="number" id="capacidadAsientosCreacion" placeholder="Ej: 180, 350" min="1" max="1000">
-                    <h3>Aerolínea</h3>
-                    <select id="aerolineaCreacion">
-                        <option value="">Seleccione una aerolínea</option>
-                        <!-- Opciones cargadas dinámicamente -->
-                    </select>
-                    <h3>Vuelo Asignado (Opcional)</h3>
-                    <select id="vueloCreacion">
-                        <option value="">Sin vuelo asignado</option>
-                        <!-- Opciones cargadas dinámicamente -->
-                    </select>
-                    <br>
-                    <button onclick="crearAvion()">Crear Avión</button>
-                    <br>
-                    <button onclick="cerrarDialogo()">Cerrar</button>
+                    <div class="dialog-content">
+                        <div class="dialog-header">
+                            <h3>Nuevo Avión</h3>
+                        </div>
+                        <form class="dialog-form">
+                            <div class="form-group">
+                                <label for="modeloCreacion">Modelo</label>
+                                <input type="text" id="modeloCreacion" class="form-control" placeholder="Ej: Boeing 737, Airbus A320" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="capacidadCreacion">Capacidad de Asientos</label>
+                                <input type="number" id="capacidadCreacion" class="form-control" min="1" max="1000" placeholder="Ej: 180" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="aerolineaCreacion">Aerolínea</label>
+                                <select id="aerolineaCreacion" class="form-control" required>
+                                    <option value="">Seleccione una aerolínea</option>
+                                    <!-- Opciones cargadas dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="vueloCreacion">Vuelo Asignado (Opcional)</label>
+                                <select id="vueloCreacion" class="form-control">
+                                    <option value="">Sin asignar vuelo</option>
+                                    <!-- Opciones cargadas dinámicamente -->
+                                </select>
+                            </div>
+                        </form>
+                        <div class="dialog-actions">
+                            <button type="button" class="btn" onclick="cerrarDialogo()">Cancelar</button>
+                            <button type="button" class="btn btn-success" onclick="crearAvion()">
+                                <i class="fas fa-save"></i> Crear Avión
+                            </button>
+                        </div>
+                    </div>
                 </dialog>
                 
                 <!-- Modal para editar avión -->
                 <dialog id="dialogoAvionEdicion">
-                    <input type="hidden" id="idAvion">
-                    <h3>Modelo del Avión</h3>
-                    <input type="text" id="modeloEdicion">
-                    <h3>Capacidad de Asientos</h3>
-                    <input type="number" id="capacidadAsientosEdicion" min="1" max="1000">
-                    <h3>Aerolínea</h3>
-                    <select id="aerolineaEdicion">
-                        <option value="">Seleccione una aerolínea</option>
-                        <!-- Opciones cargadas dinámicamente -->
-                    </select>
-                    <h3>Vuelo Asignado (Opcional)</h3>
-                    <select id="vueloEdicion">
-                        <option value="">Sin vuelo asignado</option>
-                        <!-- Opciones cargadas dinámicamente -->
-                    </select>
-                    <br>
-                    <button onclick="edicionAvion()">Guardar Cambios</button>
-                    <br>
-                    <button onclick="cerrarDialogo()">Cerrar</button>
+                    <div class="dialog-content">
+                        <div class="dialog-header">
+                            <h3>Editar Avión</h3>
+                        </div>
+                        <form class="dialog-form">
+                            <input type="hidden" id="idAvion">
+                            <div class="form-group">
+                                <label for="modeloEdicion">Modelo</label>
+                                <input type="text" id="modeloEdicion" class="form-control" placeholder="Ej: Boeing 737, Airbus A320" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="capacidadEdicion">Capacidad de Asientos</label>
+                                <input type="number" id="capacidadEdicion" class="form-control" min="1" max="1000" placeholder="Ej: 180" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="aerolineaEdicion">Aerolínea</label>
+                                <select id="aerolineaEdicion" class="form-control" required>
+                                    <option value="">Seleccione una aerolínea</option>
+                                    <!-- Opciones cargadas dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="vueloEdicion">Vuelo Asignado</label>
+                                <select id="vueloEdicion" class="form-control">
+                                    <option value="">Sin asignar vuelo</option>
+                                    <!-- Opciones cargadas dinámicamente -->
+                                </select>
+                            </div>
+                        </form>
+                        <div class="dialog-actions">
+                            <button type="button" class="btn" onclick="cerrarDialogo()">Cancelar</button>
+                            <button type="button" class="btn btn-success" onclick="edicionAvion()">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
                 </dialog>
             </div>
+            
             <div class="search-filters">
                 <div class="form-group">
-                    <label for="searchModelo">Buscar por Modelo</label>
-                    <input type="text" id="modelo" class="form-control" placeholder="Ingrese modelo del avión..." maxlength="100">
+                    <label for="modeloFiltro">Buscar por Modelo</label>
+                    <input type="text" id="modeloFiltro" class="form-control" placeholder="Filtrar por modelo...">
                 </div>
                 <div class="form-group">
-                    <label for="searchAerolinea">Filtrar por Aerolínea</label>
+                    <label for="aerolineaFiltro">Filtrar por Aerolínea</label>
                     <select id="aerolineaFiltro" class="form-control">
                         <option value="">Todas las aerolíneas</option>
                         <!-- Opciones cargadas dinámicamente -->
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="searchCapacidad">Capacidad Mínima</label>
-                    <input type="number" id="capacidadMinima" class="form-control" placeholder="Ej: 100" min="1">
+                    <label for="capacidadMinima">Capacidad Mínima</label>
+                    <input type="number" id="capacidadMinima" class="form-control" min="0" placeholder="Ej: 100">
                 </div>
                 <button class="btn" onclick="buscarAviones()">
                     <i class="fas fa-search"></i> Buscar
@@ -125,19 +160,19 @@
                 <p>Total de Aviones</p>
             </div>
             <div class="stat-card">
-                <i class="fas fa-building"></i>
-                <h3 id="aerolineasConAviones">0</h3>
-                <p>Aerolíneas con Flota</p>
+                <i class="fas fa-plane-departure"></i>
+                <h3 id="avionesDisponibles">0</h3>
+                <p>Disponibles</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-plane"></i>
+                <h3 id="avionesEnVuelo">0</h3>
+                <p>En Vuelo</p>
             </div>
             <div class="stat-card">
                 <i class="fas fa-users"></i>
                 <h3 id="capacidadTotal">0</h3>
                 <p>Capacidad Total</p>
-            </div>
-            <div class="stat-card">
-                <i class="fas fa-plane"></i>
-                <h3 id="avionesEnVuelo">0</h3>
-                <p>En Servicio</p>
             </div>
         </div>
 

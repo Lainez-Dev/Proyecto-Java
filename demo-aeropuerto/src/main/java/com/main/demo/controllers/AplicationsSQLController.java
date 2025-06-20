@@ -169,14 +169,28 @@ public class AplicationsSQLController {
 		}
 	}
 	
-	@GetMapping("/consulta_aviones")
-	public ResponseEntity<?> buscarAvionesPorAerolinea(@RequestParam Integer idAerolinea){
+	@GetMapping("/consulta_aviones_todos")
+	public ResponseEntity<?> buscarTodosLosAviones() {
 		try {
-			return ResponseEntity.ok().body(servicio.buscarAvionesPorAerolinea(idAerolinea));
+			return ResponseEntity.ok().body(servicio.buscarTodosLosAviones());
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
 		}
 	}
+
+	// Endpoint mejorado para consultar aviones con filtros
+	@GetMapping("/consulta_aviones")
+	public ResponseEntity<?> buscarAvionesConFiltros(
+			@RequestParam(required = false, defaultValue = "*") String modelo,
+			@RequestParam(required = false, defaultValue = "*") String idAerolinea,
+			@RequestParam(required = false, defaultValue = "0") String capacidadMinima) {
+		try {
+			return ResponseEntity.ok().body(servicio.buscarAvionesConFiltros(modelo, idAerolinea, capacidadMinima));
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
+		}
+	}
+	
 	
 	// ENDPOINTS DE CREACIÓN
 	
@@ -194,8 +208,16 @@ public class AplicationsSQLController {
 	public ResponseEntity<?> crearAvion(@RequestParam String modelo,
 			@RequestParam Integer capacidadAsientos,
 			@RequestParam Integer idAerolinea,
-			@RequestParam Integer idVuelo){
+			@RequestParam(required = false) Integer idVuelo){
 		try {
+			// Validaciones
+			if (modelo == null || modelo.trim().isEmpty()) {
+				return ResponseEntity.badRequest().body("El modelo es obligatorio");
+			}
+			if (capacidadAsientos < 1 || capacidadAsientos > 1000) {
+				return ResponseEntity.badRequest().body("La capacidad debe estar entre 1 y 1000 asientos");
+			}
+			
 			return ResponseEntity.ok().body(servicio.crearAvion(modelo, capacidadAsientos, idAerolinea, idVuelo));
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
@@ -329,8 +351,16 @@ public class AplicationsSQLController {
 			@RequestParam String modelo,
 			@RequestParam Integer capacidadAsientos,
 			@RequestParam Integer idAerolinea,
-			@RequestParam Integer idVuelo){
+			@RequestParam(required = false) Integer idVuelo){
 		try {
+			// Validaciones
+			if (modelo == null || modelo.trim().isEmpty()) {
+				return ResponseEntity.badRequest().body("El modelo es obligatorio");
+			}
+			if (capacidadAsientos < 1 || capacidadAsientos > 1000) {
+				return ResponseEntity.badRequest().body("La capacidad debe estar entre 1 y 1000 asientos");
+			}
+			
 			return ResponseEntity.ok().body(servicio.editarAvion(id, modelo, capacidadAsientos, idAerolinea, idVuelo));
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
@@ -479,14 +509,54 @@ public class AplicationsSQLController {
 	}
 	
 	@DeleteMapping("/borrar_avion")
-	public ResponseEntity<?> borrarAvion(@RequestParam Integer id){
+	public ResponseEntity<?> eliminarAvion(@RequestParam Integer id) {
 		try {
-			return ResponseEntity.ok().body(servicio.borrarAvion(id));
+			boolean eliminado = servicio.eliminarAvion(id);
+			if (eliminado) {
+				return ResponseEntity.ok().body("Avión eliminado correctamente");
+			} else {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Avión no encontrado");
+			}
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	
+	@GetMapping("/consulta_avion_por_id")
+	public ResponseEntity<?> buscarAvionPorId(@RequestParam Integer id) {
+		try {
+			Avion avion = servicio.buscarAvionPorId(id);
+			if (avion != null) {
+				return ResponseEntity.ok().body(avion);
+			} else {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Avión no encontrado");
+			}
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	// Endpoint para verificar si un avión tiene vuelo asignado
+	@GetMapping("/verificar_avion_vuelo")
+	public ResponseEntity<?> verificarAvionVuelo(@RequestParam Integer idAvion) {
+		try {
+			boolean tieneVuelo = servicio.avionTieneVueloAsignado(idAvion);
+			return ResponseEntity.ok().body("{\"tieneVuelo\": " + tieneVuelo + "}");
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	// Endpoint para obtener estadísticas de aviones
+	@GetMapping("/estadisticas_aviones")
+	public ResponseEntity<?> obtenerEstadisticasAviones() {
+		try {
+			return ResponseEntity.ok().body(servicio.obtenerEstadisticasAviones());
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
 	@DeleteMapping("/borrar_equipaje")
 	public ResponseEntity<?> borrarEquipaje(@RequestParam Integer id){
 		try {

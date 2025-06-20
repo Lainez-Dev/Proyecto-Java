@@ -225,13 +225,18 @@ public class Servicio {
     }
 
     public Reserva crearReserva(Integer idPasajero, Integer idVuelo, Date fechaReserva) throws SQLException {
+        // Verificar si ya existe una reserva para este pasajero y vuelo
+        if (existeReserva(idPasajero, idVuelo)) {
+            throw new SQLException("Ya existe una reserva para este pasajero en este vuelo");
+        }
+        
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
 
         String sql = "INSERT INTO reservas (id_pasajero, id_vuelo, fecha_reserva) VALUES(?,?,?)";
         PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         ps.setInt(1, idPasajero);
         ps.setInt(2, idVuelo);
-        ps.setTimestamp(3, new Timestamp(fechaReserva.getTime())); // Corrección: usar Timestamp para datetime
+        ps.setTimestamp(3, new Timestamp(fechaReserva.getTime()));
 
         int respuesta = ps.executeUpdate();
         if (respuesta == 1) {
@@ -250,6 +255,118 @@ public class Servicio {
             conn.close();
             throw new SQLException("No se ha podido insertar la nueva reserva.");
         }
+    }
+
+    public List<Reserva> buscarTodasLasReservas() throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        String sql = "SELECT * FROM reservas ORDER BY fecha_reserva DESC";
+        PreparedStatement ps = conn.prepareStatement(sql);
+
+        ResultSet rs = ps.executeQuery();
+        List<Reserva> reservas = new ArrayList<>();
+        while (rs.next()) {
+            Integer id = rs.getInt("id");
+            Integer idPasajero = rs.getInt("id_pasajero");
+            Integer idVuelo = rs.getInt("id_vuelo");
+            Timestamp fechaReserva = rs.getTimestamp("fecha_reserva");
+            Reserva reserva = new Reserva(id, idPasajero, idVuelo, new Date(fechaReserva.getTime()));
+            reservas.add(reserva);
+        }
+        rs.close();
+        ps.close();
+        conn.close();
+        return reservas;
+    }
+
+    // Método para buscar reservas con filtros
+    public List<Reserva> buscarReservasConFiltros(String idPasajero, String idVuelo, String fecha) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        StringBuilder sql = new StringBuilder("SELECT * FROM reservas WHERE 1=1");
+        List<Object> parametros = new ArrayList<>();
+        
+        if (idPasajero != null && !idPasajero.equals("*") && !idPasajero.trim().isEmpty()) {
+            sql.append(" AND id_pasajero = ?");
+            parametros.add(Integer.parseInt(idPasajero));
+        }
+        
+        if (idVuelo != null && !idVuelo.equals("*") && !idVuelo.trim().isEmpty()) {
+            sql.append(" AND id_vuelo = ?");
+            parametros.add(Integer.parseInt(idVuelo));
+        }
+        
+        if (fecha != null && !fecha.equals("*") && !fecha.trim().isEmpty()) {
+            sql.append(" AND DATE(fecha_reserva) = ?");
+            parametros.add(Date.valueOf(fecha));
+        }
+        
+        sql.append(" ORDER BY fecha_reserva DESC");
+        
+        PreparedStatement ps = conn.prepareStatement(sql.toString());
+        
+        for (int i = 0; i < parametros.size(); i++) {
+            ps.setObject(i + 1, parametros.get(i));
+        }
+        
+        ResultSet rs = ps.executeQuery();
+        List<Reserva> reservas = new ArrayList<>();
+        
+        while (rs.next()) {
+            Integer id = rs.getInt("id");
+            Integer idPas = rs.getInt("id_pasajero");
+            Integer idVue = rs.getInt("id_vuelo");
+            Timestamp fechaReserva = rs.getTimestamp("fecha_reserva");
+            Reserva reserva = new Reserva(id, idPas, idVue, new Date(fechaReserva.getTime()));
+            reservas.add(reserva);
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return reservas;
+    }
+
+    // Método para verificar si existe una reserva duplicada
+    public boolean existeReserva(Integer idPasajero, Integer idVuelo) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        String sql = "SELECT COUNT(*) FROM reservas WHERE id_pasajero = ? AND id_vuelo = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, idPasajero);
+        ps.setInt(2, idVuelo);
+        
+        ResultSet rs = ps.executeQuery();
+        boolean existe = false;
+        if (rs.next()) {
+            existe = rs.getInt(1) > 0;
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return existe;
+    }
+
+    // Método para verificar reserva en edición
+    public boolean existeReservaParaEdicion(Integer idPasajero, Integer idVuelo, Integer idReservaActual) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        String sql = "SELECT COUNT(*) FROM reservas WHERE id_pasajero = ? AND id_vuelo = ? AND id != ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, idPasajero);
+        ps.setInt(2, idVuelo);
+        ps.setInt(3, idReservaActual);
+        
+        ResultSet rs = ps.executeQuery();
+        boolean existe = false;
+        if (rs.next()) {
+            existe = rs.getInt(1) > 0;
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return existe;
     }
 
     // CORRECCIÓN IMPORTANTE: Método crear vuelo con fechas datetime

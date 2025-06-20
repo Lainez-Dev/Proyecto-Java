@@ -4,13 +4,17 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -107,6 +111,52 @@ public class AplicationsSQLController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
 		}
 	}
+
+	@GetMapping("/consulta_reservas_todas")
+	public ResponseEntity<?> buscarTodasLasReservas() {
+		try {
+			return ResponseEntity.ok().body(servicio.buscarTodasLasReservas());
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
+		}
+	}
+
+	@GetMapping("/consulta_reservas_filtros")
+	public ResponseEntity<?> buscarReservasConFiltros(
+			@RequestParam(required = false, defaultValue = "*") String idPasajero,
+			@RequestParam(required = false, defaultValue = "*") String idVuelo,
+			@RequestParam(required = false, defaultValue = "*") String fecha) {
+		try {
+			return ResponseEntity.ok().body(servicio.buscarReservasConFiltros(idPasajero, idVuelo, fecha));
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
+		}
+	}
+
+	@GetMapping("/verificar_reserva")
+	public ResponseEntity<?> verificarReserva(
+			@RequestParam Integer idPasajero,
+			@RequestParam Integer idVuelo) {
+		try {
+			boolean existe = servicio.existeReserva(idPasajero, idVuelo);
+			return ResponseEntity.ok().body("{\"existe\": " + existe + "}");
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	@GetMapping("/verificar_reserva_edicion")
+	public ResponseEntity<?> verificarReservaEdicion(
+			@RequestParam Integer idPasajero,
+			@RequestParam Integer idVuelo,
+			@RequestParam Integer id) {
+		try {
+			boolean existe = servicio.existeReservaParaEdicion(idPasajero, idVuelo, id);
+			return ResponseEntity.ok().body("{\"existe\": " + existe + "}");
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
 	
 	@GetMapping("/consulta_puertas")
 	public ResponseEntity<?> buscarPuertas(
@@ -189,9 +239,25 @@ public class AplicationsSQLController {
 	@GetMapping("/crear_reserva")
 	public ResponseEntity<?> crearReserva(@RequestParam Integer idPasajero,
 			@RequestParam Integer idVuelo,
-			@RequestParam Date fechaReserva){
+			@RequestParam String fechaReserva){
 		try {
-			return ResponseEntity.ok().body(servicio.crearReserva(idPasajero, idVuelo, fechaReserva));
+			// Convertir string de fecha a Date
+			Date fechaReservaDate;
+			try {
+				// Intentar formato YYYY-MM-DD
+				fechaReservaDate = Date.valueOf(fechaReserva);
+			} catch (IllegalArgumentException e) {
+				try {
+					// Intentar formato con timestamp
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+					LocalDateTime dateTime = LocalDateTime.parse(fechaReserva, formatter);
+					fechaReservaDate = Date.valueOf(dateTime.toLocalDate());
+				} catch (DateTimeParseException e2) {
+					return ResponseEntity.badRequest().body("Formato de fecha inválido. Use YYYY-MM-DD o YYYY-MM-DD HH:mm:ss");
+				}
+			}
+			
+			return ResponseEntity.ok().body(servicio.crearReserva(idPasajero, idVuelo, fechaReservaDate));
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
 		}
@@ -312,11 +378,67 @@ public class AplicationsSQLController {
 	public ResponseEntity<?> editarReserva(@RequestParam Integer id,
 			@RequestParam Integer idPasajero,
 			@RequestParam Integer idVuelo,
-			@RequestParam Date fechaReserva){
+			@RequestParam String fechaReserva){
 		try {
-			return ResponseEntity.ok().body(servicio.editarReserva(id, idPasajero, idVuelo, fechaReserva));
+			// Convertir string de fecha a Date
+			Date fechaReservaDate;
+			try {
+				// Intentar formato YYYY-MM-DD
+				fechaReservaDate = Date.valueOf(fechaReserva);
+			} catch (IllegalArgumentException e) {
+				try {
+					// Intentar formato con timestamp
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+					LocalDateTime dateTime = LocalDateTime.parse(fechaReserva, formatter);
+					fechaReservaDate = Date.valueOf(dateTime.toLocalDate());
+				} catch (DateTimeParseException e2) {
+					return ResponseEntity.badRequest().body("Formato de fecha inválido. Use YYYY-MM-DD o YYYY-MM-DD HH:mm:ss");
+				}
+			}
+			
+			// Verificar si ya existe otra reserva con la misma combinación (excluyendo la actual)
+			if (servicio.existeReservaParaEdicion(idPasajero, idVuelo, id)) {
+				return ResponseEntity.badRequest().body("Ya existe otra reserva para este pasajero en este vuelo");
+			}
+			
+			return ResponseEntity.ok().body(servicio.editarReserva(id, idPasajero, idVuelo, fechaReservaDate));
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
+		}
+	}
+
+	@GetMapping("/estadisticas_reservas")
+	public ResponseEntity<?> obtenerEstadisticasReservas() {
+		try {
+			Map<String, Object> estadisticas = new HashMap<>();
+			
+			// Obtener todas las reservas
+			List<Reserva> todasLasReservas = servicio.buscarTodasLasReservas();
+			estadisticas.put("totalReservas", todasLasReservas.size());
+			
+			// Calcular reservas de hoy
+			LocalDate hoy = LocalDate.now();
+			long reservasHoy = todasLasReservas.stream()
+				.filter(r -> {
+					LocalDate fechaReserva = r.getFechaReserva().toInstant()
+						.atZone(ZoneId.systemDefault()).toLocalDate();
+					return fechaReserva.equals(hoy);
+				})
+				.count();
+			estadisticas.put("reservasHoy", reservasHoy);
+			
+			// Simular reservas confirmadas (80% del total)
+			estadisticas.put("reservasConfirmadas", Math.ceil(todasLasReservas.size() * 0.8));
+			
+			// Calcular pasajeros únicos con reserva
+			Set<Integer> pasajerosUnicos = todasLasReservas.stream()
+				.map(Reserva::getIdPasajero)
+				.collect(Collectors.toSet());
+			estadisticas.put("pasajerosConReserva", pasajerosUnicos.size());
+			
+			return ResponseEntity.ok().body(estadisticas);
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	

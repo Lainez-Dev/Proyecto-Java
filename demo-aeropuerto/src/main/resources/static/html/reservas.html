@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas - AeroSystem</title>
+    <meta http-equiv="Expires" content="0">
+	<meta http-equiv="Last-Modified" content="0">
+	<meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
+	<meta http-equiv="Pragma" content="no-cache"> 
+    <link href="../css/styles-reservas.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-plane"></i>
+                <span>AeroSystem</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html">Inicio</a></li>
+                <li><a href="vuelos.html">Vuelos</a></li>
+                <li><a href="aviones.html">Aviones</a></li>
+                <li><a href="aerolineas.html">Aerolíneas</a></li>
+                <li><a href="puertas.html">Puertas</a></li>
+                <li><a href="pasajeros.html">Pasajeros</a></li>
+                <li><a href="reservas.html" class="active">Reservas</a></li>
+            </ul>
+            <div class="user-actions">
+                <a href="#" class="btn btn-outline"><i class="fas fa-search"></i></a>
+                <a href="#" class="btn"><i class="fas fa-user"></i> Admin</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h1><i class="fas fa-ticket-alt"></i>Gestión de Reservas</h1>
+            <p>Administra las reservas de vuelos del sistema aeroportuario</p>
+        </div>
+
+        <!-- Alert messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Controls section -->
+        <div class="controls-section">
+            <div class="controls-header">
+                <h2>Buscar y Filtrar Reservas</h2>
+                <button class="btn btn-success" onclick="llamarDialogoReserva()">
+                    <i class="fas fa-plus"></i> Nueva Reserva
+                </button>
+                
+                <!-- Modal para crear reserva -->
+                <dialog id="dialogoReserva">
+                    <div class="dialog-content">
+                        <div class="dialog-header">
+                            <h3>Nueva Reserva</h3>
+                        </div>
+                        <form class="dialog-form">
+                            <div class="form-group">
+                                <label for="pasajeroCreacion">Pasajero</label>
+                                <select id="pasajeroCreacion" class="form-control" required>
+                                    <option value="">Seleccione un pasajero</option>
+                                    <!-- Opciones cargadas dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="vueloCreacion">Vuelo</label>
+                                <select id="vueloCreacion" class="form-control" required>
+                                    <option value="">Seleccione un vuelo</option>
+                                    <!-- Opciones cargadas dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fechaReservaCreacion">Fecha de Reserva</label>
+                                <input type="datetime-local" id="fechaReservaCreacion" class="form-control" required>
+                            </div>
+                        </form>
+                        <div class="dialog-actions">
+                            <button type="button" class="btn" onclick="cerrarDialogo()">Cancelar</button>
+                            <button type="button" class="btn btn-success" onclick="crearReserva()">
+                                <i class="fas fa-save"></i> Crear Reserva
+                            </button>
+                        </div>
+                    </div>
+                </dialog>
+                
+                <!-- Modal para editar reserva -->
+                <dialog id="dialogoReservaEdicion">
+                    <div class="dialog-content">
+                        <div class="dialog-header">
+                            <h3>Editar Reserva</h3>
+                        </div>
+                        <form class="dialog-form">
+                            <input type="hidden" id="idReserva">
+                            <div class="form-group">
+                                <label for="pasajeroEdicion">Pasajero</label>
+                                <select id="pasajeroEdicion" class="form-control" required>
+                                    <option value="">Seleccione un pasajero</option>
+                                    <!-- Opciones cargadas dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="vueloEdicion">Vuelo</label>
+                                <select id="vueloEdicion" class="form-control" required>
+                                    <option value="">Seleccione un vuelo</option>
+                                    <!-- Opciones cargadas dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="fechaReservaEdicion">Fecha de Reserva</label>
+                                <input type="datetime-local" id="fechaReservaEdicion" class="form-control" required>
+                            </div>
+                        </form>
+                        <div class="dialog-actions">
+                            <button type="button" class="btn" onclick="cerrarDialogo()">Cancelar</button>
+                            <button type="button" class="btn btn-success" onclick="edicionReserva()">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </dialog>
+            </div>
+            
+            <div class="search-filters">
+                <div class="form-group">
+                    <label for="searchPasajero">Buscar por Pasajero</label>
+                    <select id="pasajeroFiltro" class="form-control">
+                        <option value="">Todos los pasajeros</option>
+                        <!-- Opciones cargadas dinámicamente -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="searchVuelo">Filtrar por Vuelo</label>
+                    <select id="vueloFiltro" class="form-control">
+                        <option value="">Todos los vuelos</option>
+                        <!-- Opciones cargadas dinámicamente -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="searchFecha">Fecha de Reserva</label>
+                    <input type="date" id="fechaFiltro" class="form-control">
+                </div>
+                <button class="btn" onclick="buscarReservas()">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-ticket-alt"></i>
+                <h3 id="totalReservas">0</h3>
+                <p>Total de Reservas</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <h3 id="reservasHoy">0</h3>
+                <p>Reservas Hoy</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <h3 id="reservasConfirmadas">0</h3>
+                <p>Confirmadas</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3 id="pasajerosConReserva">0</h3>
+                <p>Pasajeros con Reserva</p>
+            </div>
+        </div>
+
+        <!-- Table section -->
+        <div class="table-section">
+            <div class="table-header">
+                <h3>Lista de Reservas</h3>
+                <div class="table-actions-header">
+                    <button class="btn btn-outline btn-sm" onclick="cargarReservas()">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                    <button class="btn btn-outline btn-sm" onclick="exportarReservas()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+            <div id="tableContainer">
+                <table class="reservas-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Pasajero</th>
+                            <th>Vuelo</th>
+                            <th>Origen - Destino</th>
+                            <th>Fecha de Reserva</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contenido_tabla">
+                        <!-- Contenido generado por JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="../js/reservas.js"></script>
+    <script>
+        // Cargar reservas al iniciar la página
+        window.onload = function() {
+            cargarReservas();
+            cargarDatosParaFiltros();
+            
+            // Establecer fecha actual por defecto
+            const ahora = new Date();
+            const fechaActual = ahora.toISOString().slice(0, 16);
+            document.getElementById('fechaReservaCreacion').value = fechaActual;
+        }
+    </script>
+</body>
+</html>

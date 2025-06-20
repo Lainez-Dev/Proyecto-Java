@@ -37,6 +37,11 @@ public class Servicio {
     // MÉTODOS CREATE
 
     public Aerolinea crearAerolinea(String nombre, String paisOrigen) throws SQLException {
+    // Verificar si ya existe una aerolínea con ese nombre
+        if (existeAerolinea(nombre)) {
+            throw new SQLException("Ya existe una aerolínea con el nombre: " + nombre);
+        }
+        
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
 
         String sql = "INSERT INTO aerolineas (nombre, pais_origen) VALUES(?,?)";
@@ -59,7 +64,7 @@ public class Servicio {
         } else {
             ps.close();
             conn.close();
-            throw new SQLException("No se ha podido eliminar la puerta.");
+            throw new SQLException("No se ha podido insertar la nueva aerolínea.");
         }
     }
 
@@ -307,6 +312,45 @@ public class Servicio {
         return aerolineas;
     }
 
+    public List<Aerolinea> buscarAerolineasConFiltros(String nombreBusqueda, String paisBusqueda) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        StringBuilder sql = new StringBuilder("SELECT * FROM aerolineas WHERE 1=1");
+        List<String> parametros = new ArrayList<>();
+        
+        if (nombreBusqueda != null && !nombreBusqueda.equals("*") && !nombreBusqueda.trim().isEmpty()) {
+            sql.append(" AND nombre LIKE ?");
+            parametros.add("%" + nombreBusqueda + "%");
+        }
+        
+        if (paisBusqueda != null && !paisBusqueda.equals("*") && !paisBusqueda.trim().isEmpty()) {
+            sql.append(" AND pais_origen LIKE ?");
+            parametros.add("%" + paisBusqueda + "%");
+        }
+        
+        PreparedStatement ps = conn.prepareStatement(sql.toString());
+        
+        for (int i = 0; i < parametros.size(); i++) {
+            ps.setString(i + 1, parametros.get(i));
+        }
+        
+        ResultSet rs = ps.executeQuery();
+        List<Aerolinea> aerolineas = new ArrayList<>();
+        
+        while (rs.next()) {
+            Integer id = rs.getInt("id");
+            String nombre = rs.getString("nombre");
+            String paisOrigen = rs.getString("pais_origen");
+            Aerolinea aerolinea = new Aerolinea(id, nombre, paisOrigen);
+            aerolineas.add(aerolinea);
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return aerolineas;
+    }
+
     public List<Pasajero> buscarPasajeros(String dniBusqueda) throws SQLException {
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
         String sql;
@@ -410,6 +454,11 @@ public class Servicio {
     // MÉTODOS DE EDICIÓN
 
     public Aerolinea editarAerolinea(Integer id, String nombre, String paisOrigen) throws SQLException {
+        // Verificar si ya existe otra aerolínea con ese nombre (excluyendo la actual)
+        if (existeAerolineaParaEdicion(nombre, id)) {
+            throw new SQLException("Ya existe otra aerolínea con el nombre: " + nombre);
+        }
+        
         Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
 
         String sql = "UPDATE aerolineas SET nombre = ?, pais_origen = ? WHERE id = ?";
@@ -930,6 +979,46 @@ public class Servicio {
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setString(1, numeroPuerta);
         ps.setInt(2, idPuertaActual);
+        
+        ResultSet rs = ps.executeQuery();
+        boolean existe = false;
+        if (rs.next()) {
+            existe = rs.getInt(1) > 0;
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return existe;
+    }
+
+    public boolean existeAerolinea(String nombre) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        String sql = "SELECT COUNT(*) FROM aerolineas WHERE nombre = ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, nombre);
+        
+        ResultSet rs = ps.executeQuery();
+        boolean existe = false;
+        if (rs.next()) {
+            existe = rs.getInt(1) > 0;
+        }
+        
+        rs.close();
+        ps.close();
+        conn.close();
+        return existe;
+    }
+
+    // Método para verificar aerolínea en edición
+    public boolean existeAerolineaParaEdicion(String nombre, Integer idAerolineaActual) throws SQLException {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/aeropuerto", "root", "");
+        
+        String sql = "SELECT COUNT(*) FROM aerolineas WHERE nombre = ? AND id != ?";
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, nombre);
+        ps.setInt(2, idAerolineaActual);
         
         ResultSet rs = ps.executeQuery();
         boolean existe = false;

@@ -34,11 +34,13 @@ public class AplicationsSQLController {
 	// ENDPOINTS DE BÚSQUEDA
 	
 	@GetMapping("/consulta_aerolineas")
-	public ResponseEntity<?> buscarAerolineas(@RequestParam String nombre){
+	public ResponseEntity<?> buscarAerolineas(
+			@RequestParam(required = false, defaultValue = "*") String nombre,
+			@RequestParam(required = false, defaultValue = "*") String pais) {
 		try {
-			return ResponseEntity.ok().body(servicio.buscarAerolineas(nombre));
+			return ResponseEntity.ok().body(servicio.buscarAerolineasConFiltros(nombre, pais));
 		} catch (SQLException e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
 		}
 	}
 	
@@ -229,6 +231,30 @@ public class AplicationsSQLController {
 			return ResponseEntity.ok().body(servicio.editarAerolinea(id, nombre, paisOrigen));
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage()); 
+		}
+	}
+
+	// Endpoint para verificar si existe una aerolínea
+	@GetMapping("/verificar_aerolinea")
+	public ResponseEntity<?> verificarAerolinea(@RequestParam String nombre) {
+		try {
+			boolean existe = servicio.existeAerolinea(nombre);
+			return ResponseEntity.ok().body("{\"existe\": " + existe + "}");
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	// Endpoint para verificar aerolínea en edición
+	@GetMapping("/verificar_aerolinea_edicion")
+	public ResponseEntity<?> verificarAerolineaEdicion(
+			@RequestParam String nombre, 
+			@RequestParam Integer id) {
+		try {
+			boolean existe = servicio.existeAerolineaParaEdicion(nombre, id);
+			return ResponseEntity.ok().body("{\"existe\": " + existe + "}");
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 	

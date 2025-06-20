@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aerolíneas - AeroSystem</title>
+    <meta http-equiv="Expires" content="0">
+	<meta http-equiv="Last-Modified" content="0">
+	<meta http-equiv="Cache-Control" content="no-cache, mustrevalidate">
+	<meta http-equiv="Pragma" content="no-cache"> 
+    <link href="../css/styles-aerolineas.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-plane"></i>
+                <span>AeroSystem</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="../index.html">Inicio</a></li>
+                <li><a href="vuelos.html">Vuelos</a></li>
+                <li><a href="aviones.html">Aviones</a></li>
+                <li><a href="aerolineas.html" class="active">Aerolíneas</a></li>
+                <li><a href="puertas.html">Puertas</a></li>
+                <li><a href="pasajeros.html">Pasajeros</a></li>
+                <li><a href="reservas.html">Reservas</a></li>
+            </ul>
+            <div class="user-actions">
+                <a href="#" class="btn btn-outline"><i class="fas fa-search"></i></a>
+                <a href="#" class="btn"><i class="fas fa-user"></i> Admin</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h1><i class="fas fa-building"></i>Gestión de Aerolíneas</h1>
+            <p>Administra las aerolíneas registradas en el sistema aeroportuario</p>
+        </div>
+
+        <!-- Alert messages -->
+        <div id="alertContainer"></div>
+
+        <!-- Controls section -->
+        <div class="controls-section">
+            <div class="controls-header">
+                <h2>Buscar y Filtrar Aerolíneas</h2>
+                <button class="btn btn-success" onclick="llamarDialogoAerolinea()">
+                    <i class="fas fa-plus"></i> Nueva Aerolínea
+                </button>
+                
+                <!-- Modal para crear aerolínea -->
+                <dialog id="dialogoAerolinea">
+                    <div class="dialog-content">
+                        <div class="dialog-header">
+                            <h3>Nueva Aerolínea</h3>
+                        </div>
+                        <form class="dialog-form">
+                            <div class="form-group">
+                                <label for="nombreCreacion">Nombre de la Aerolínea</label>
+                                <input type="text" id="nombreCreacion" class="form-control" placeholder="Ej: Iberia, Vueling, Air Europa" maxlength="100" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="paisOrigenCreacion">País de Origen</label>
+                                <input type="text" id="paisOrigenCreacion" class="form-control" placeholder="Ej: España, Francia, Reino Unido" maxlength="50" required>
+                            </div>
+                        </form>
+                        <div class="dialog-actions">
+                            <button type="button" class="btn" onclick="cerrarDialogo()">Cancelar</button>
+                            <button type="button" class="btn btn-success" onclick="crearAerolinea()">
+                                <i class="fas fa-save"></i> Crear Aerolínea
+                            </button>
+                        </div>
+                    </div>
+                </dialog>
+                
+                <!-- Modal para editar aerolínea -->
+                <dialog id="dialogoAerolineaEdicion">
+                    <div class="dialog-content">
+                        <div class="dialog-header">
+                            <h3>Editar Aerolínea</h3>
+                        </div>
+                        <form class="dialog-form">
+                            <input type="hidden" id="idAerolinea">
+                            <div class="form-group">
+                                <label for="nombreEdicion">Nombre de la Aerolínea</label>
+                                <input type="text" id="nombreEdicion" class="form-control" maxlength="100" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="paisOrigenEdicion">País de Origen</label>
+                                <input type="text" id="paisOrigenEdicion" class="form-control" maxlength="50" required>
+                            </div>
+                        </form>
+                        <div class="dialog-actions">
+                            <button type="button" class="btn" onclick="cerrarDialogo()">Cancelar</button>
+                            <button type="button" class="btn btn-success" onclick="edicionAerolinea()">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </dialog>
+            </div>
+            
+            <div class="search-filters">
+                <div class="form-group">
+                    <label for="searchNombre">Buscar por Nombre</label>
+                    <input type="text" id="nombre" class="form-control" placeholder="Ingrese nombre de aerolínea..." maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="searchPais">Filtrar por País</label>
+                    <select id="paisFiltro" class="form-control">
+                        <option value="">Todos los países</option>
+                        <!-- Opciones cargadas dinámicamente -->
+                    </select>
+                </div>
+                <button class="btn" onclick="buscarAerolineas()">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-building"></i>
+                <h3 id="totalAerolineas">0</h3>
+                <p>Total de Aerolíneas</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-globe"></i>
+                <h3 id="paisesUnicos">0</h3>
+                <p>Países Representados</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-fighter-jet"></i>
+                <h3 id="aerolineasConFlota">0</h3>
+                <p>Con Flota Registrada</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-chart-line"></i>
+                <h3 id="aerolineasActivas">0</h3>
+                <p>Activas</p>
+            </div>
+        </div>
+
+        <!-- Table section -->
+        <div class="table-section">
+            <div class="table-header">
+                <h3>Lista de Aerolíneas</h3>
+                <div class="table-actions-header">
+                    <button class="btn btn-outline btn-sm" onclick="cargarAerolineas()">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                    <button class="btn btn-outline btn-sm" onclick="exportarAerolineas()">
+                        <i class="fas fa-download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+            <div id="tableContainer">
+                <table class="aerolineas-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>País de Origen</th>
+                            <th>Flota</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contenido_tabla">
+                        <!-- Contenido generado por JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Airline details panel -->
+        <div class="airline-details" id="airlineDetails" style="display: none;">
+            <div class="details-header">
+                <h3>Detalles de la Aerolínea</h3>
+                <button class="close-details" onclick="cerrarDetalles()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="details-content" id="detailsContent">
+                <!-- Contenido cargado dinámicamente -->
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="../js/aerolineas.js"></script>
+    <script>
+        // Cargar aerolíneas al iniciar la página
+        window.onload = function() {
+            cargarAerolineas();
+            cargarPaisesParaFiltros();
+        }
+    </script>
+</body>
+</html>
